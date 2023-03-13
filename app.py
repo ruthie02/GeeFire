@@ -1,11 +1,39 @@
 from flask import Flask
+from flask import request, jsonify
+from flask_cors import CORS, cross_origin
+from src.ee_utils import *
+
 
 app = Flask(__name__)
 
-@app.route("/")
+CORS(app, support_credentials=True)
+
+
+@app.before_request
+def before():
+    ee.Initialize()
+
+
+@app.route('/')
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return 'Hello World!'
 
 
-if __name__ == "__main__":
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    image = ee.Image('LANDSAT/LC08/C01/T1_TOA/LC08_044034_20140318')
+
+    # Define the visualization parameters.
+    vis_params = {
+        'bands': ['B5', 'B4', 'B3'],
+        'min': 0,
+        'max': 0.5,
+        'gamma': [0.95, 1.1, 1]
+    }
+
+    url = image_to_map_id(image, vis_params)
+    return jsonify(url), 200
+
+
+if __name__ == '__main__':
     app.run()
