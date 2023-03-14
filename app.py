@@ -1,13 +1,13 @@
 from flask import Flask
 from flask import request, jsonify
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from src.ee_utils import *
+import ee
 
 
 app = Flask(__name__)
 
 CORS(app, support_credentials=True)
-
 
 @app.before_request
 def before():
