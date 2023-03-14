@@ -1,11 +1,10 @@
 import ee
-from config import service_email_account, earth_engine_key
 
 
-# service_account = 'geefire-ruth@geefire-380610.iam.gserviceaccount.com'
-# earth_engine_key = r'src\gee_key.json'
+service_account = 'geefire-ruth@geefire-380610.iam.gserviceaccount.com'
+earth_engine_key = r'gee_key.json'
 
-credentials = ee.ServiceAccountCredentials(service_email_account, earth_engine_key)
+credentials = ee.ServiceAccountCredentials(service_account, earth_engine_key)
 ee.Initialize(credentials)
 
 # def image_to_map_id(image_name, vis_params={}):
