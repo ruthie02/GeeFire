@@ -108,3 +108,6 @@ __pycache__
 
 #virtualenv
 venv
+
+#earth engine token
+src\gee_key.json

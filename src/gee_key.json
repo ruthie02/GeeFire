@@ -1,0 +1,12 @@
+{
+    "type": "service_account",
+    "project_id": "geefire-380610",
+    "private_key_id": "f3db49e7b08676066bb1cdb9b72b2b3627d14e3c",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCRyJfXIBqJMc8+\nGQXYsfivrIU8wG4a/FaWU8th3fWMf3LlnuJUm/RbDrep9W8wqGYmLMTXywugD8Q9\nBpAql11INNBjQ7J7UBg8uTAFcpeJ4ozsh+6/UdnMyZp+Z3dYDDWQ+WqSJ6un1AXY\nTnAebTaioOFKWy30guJkg/DVs8x6kjPS4aX4SOJCWxiD5S1oWcveIRw1zR0TGNyA\nXvy0uWWV+3kr8nc3p3k65UekXJY6/HHPpcM+IjbsXQMD7ojv6NzReJnW2DAxYxZ4\nIGtJdBrp0pNJc413R/Pu8opy7XNE1g+kr2Yf/EA6HpNasyEjhDudsX+g3q4t9+FY\n6YUUGtW9AgMBAAECggEAQG4TsYemQrFJYywC+fj6LIYGYsm3P+T7TbgeAJRs9BnV\nyWcVp4g/kEjqYkqvSCV88+1AWBEMg8LEG6Z9a9125DU3Tk+6n6ZP9/Jup1G0aMPA\nPb98BIFjzY7iYXBP/hFzUS3ybELtKiDaLnXINqJVDb4lo8u1fUWlUgBAHeq3egnd\n3ch6AiVA6IvOotYfNIzvaJfYKr/zFVDTHlLB6teqVC4DREGo+PIkEpSLmy8F+hFw\nikkbSFhjQHm73nJW3KDRxabXAMSvS5lr9cdZQwI98AhDxDYtQ5xscLS0m4lOFvrC\nfbcemTrEonOaamzX/cst/Z1H6fVvnGGyBNeYwzWHrwKBgQDGG5r0efITbyq9iWQT\npdZROJu8oXNU3/0ocFRt35xyxjb9G1bWD3XupZsEXITCcjBrQUFliZ/3fLw3o1HA\nvfj5Hooy/iGAn4MFQpyv+jLDy0eHb7DQf+smwouUoqJANJNDsoQHOiu0b4c9LPdX\nCb38k5RBcjcUp1gpvCpVBC5tvwKBgQC8Yp+PmN6i1ELHBbjtlFuyohkpltnX2aEG\n4bK6g/HhwBt1nWim6O1duxB8CNC03wj/E7Itwvio049GD8vvxPHVtB5483hhALK3\ngr3o/f2QP5Msy8ZAatWpaqHSO4WlkAM3xTP7H04i90fL7HNnVa8b9RArr44pg5Jq\nk5ANNayTgwKBgFFbUN2JnvKAOssvuxuehU9BsiNbImP+wJZ02xdsN3GjGT4Eljq+\niq4A8JJv9E1uW5gQamzqgfk/DoTC23YODkswUYzzdIq/9yyX2IUkeOiTeMKUCcb2\nYXm/d1cJGxzG+ptYmoPlTcGB88YZy1HBPHaXnNDruNcQilJJZhEX8IE9AoGAXViZ\nK/RZzWFUPX4OZlrvHRLJWRxQkW5bJifMAjPDNVOVx6/Z3Wrpw1ogDvXnRNiHgq1l\nytsjj7RU+Ch3qzVxh60atGAgNCC+bcQxCjRg4os+CCJo+B54BNy7loq77I/xqD7l\nRPf8JcNWJivh+0Av5rCF9L+mt9dkQ78e0AzamLUCgYEAuMhXZi740eokPCdqKfCx\n9rWO1SMNyGiBkpvedH3LfSowgBvkncWXaS0pejn/paeZbhXAnd80qmhXO/apMppA\n+/7H/AOn6k7BuSzoRKYkElMVa1JGKkafOXX++cm2BEw6ARLsAB4AaRVNjNQkk1MG\nX9uf1FqLR65g9KpB6Tet++w=\n-----END PRIVATE KEY-----\n",
+    "client_email": "geefire-ruth@geefire-380610.iam.gserviceaccount.com",
+    "client_id": "107023326759232159022",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/geefire-ruth%40geefire-380610.iam.gserviceaccount.com"
+  }
