@@ -1,15 +1,3 @@
-<!-- 
-    1. Ask the user for pre-fire range date
-    2. Ask the user for post-fire range date
-    3. Ask the user to choose imagery: 
-        a. Sentinel
-        b. Landsat
-    4. Ask the user to draw a feature using OpenLayers interaction - this should be in javascript
-    5. Last step is for the user to click Calculate button 
-    6. If the user wants to clean all the selection, there should be a "Clean" button
-
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,8 +11,23 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 </head>
 <body>
+    <div>
+        <!-- 
+            Add collapsible sidebar and 
+                1. Ask the user for pre-fire range date
+                2. Ask the user for post-fire range date
+                3. Ask the user to choose imagery: 
+                    a. Sentinel
+                    b. Landsat
+                4. Ask the user to draw a feature using OpenLayers interaction - this should be in javascript
+                5. Last step is for the user to click Calculate button 
+                6. If the user wants to clean all the selection, there should be a "Clean" button
+        -->
+    </div>
 
-   
+    <!-- this is the map part on the main page -->
+    
+   <div id="map" class="map"></div>
     <!-- 3rd party libraries-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/7.1.0/index.js" integrity="sha512-P5hrR+jPjZay1KnD49hwkDzZ/V44/0TzvmBXC47q3urXDnNubii20P52gHOdM3sEg0h9x1JtKSif83uCSeg3hQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/ol-layerswitcher@4.1.1"></script>
