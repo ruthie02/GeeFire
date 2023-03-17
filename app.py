@@ -7,7 +7,7 @@ from flask import render_template
 import ee
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='./templates', static_folder='./static')
 
 CORS(app, support_credentials=True)
 
