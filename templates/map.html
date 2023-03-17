@@ -7,11 +7,11 @@
     <title>Forest Fire Severity Mapping using Google Earth Engine</title>
 
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/ol-layerswitcher@4.1.1/dist/ol-layerswitcher.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/7.1.0/ol.min.css" integrity="sha512-InhY7dfdkf2+ZyIsz9AX9M1xDC3GjEy0zVnAIudX1fTUOEhBu13KooX9txjBoWkDAMI3fQ07VE/D0gMUvweerw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://unpkg.com/ol-layerswitcher@4.1.1/dist/ol-layerswitcher.css" type="text/css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/css/ol.css" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <!--{% comment %} <link rel="stylesheet" href="{{ url_for('static', path='css/ol3-sidebar.css') }}" /> {% endcomment %}-->
-    <link rel="stylesheet" href="../static/css/ol3-sidebar.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='ol3-sidebar.css') }}" />  
+    <!--<link rel="stylesheet" href="../static/css/ol3-sidebar.css" type="text/css" />-->
 
     <style>
         body {
@@ -33,20 +33,6 @@
 
 </head>
 <body>
-        <!-- 
-            Add collapsible sidebar and 
-                1. Ask the user for pre-fire range date
-                2. Ask the user for post-fire range date
-                3. Ask the user to choose imagery: 
-                    a. Sentinel
-                    b. Landsat
-                4. Ask the user to draw a feature using OpenLayers interaction - this should be in javascript
-                5. Last step is for the user to click Calculate button 
-                6. If the user wants to clean all the selection, there should be a "Clean" button
-        -->
-
-    <!-- this is the map part on the main page --> 
-
     <div id="sidebar" class="sidebar collapsed">
         <!-- Nav tabs -->
         <div class="sidebar-tabs">
@@ -80,38 +66,26 @@
                 <input type="submit" name="action" value="Sentinel" id="display">
                 <input type="submit" name="action" value="Landsat" id="download"><br><br>
 
-                <b> 4. Restart</b> <br><br>
-                <input class="button is-primary" type="submit" value='clean' id="undo">                
+                <b> 4. Calculate and Visualize</b> <br><br>
+                <input class="button is-primary" type="submit" value='Calculate and Visualize' id="calc">   
+                
+                <br><br>
+                
+                <b> 5. Restart</b> <br><br>
+                <input class="button is-primary" type="submit" value='Reset' id="undo">     
             </div>
-            <br>
-
-            <div class="sidebar-pane" id="methodology">
-                <h1 class="sidebar-header">Methodology<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-            </div>
-
-            <div class="sidebar-pane" id="messages">
-                <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-            </div>
-
-            <div class="sidebar-pane" id="settings">
-                <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-            </div>                        
+            <br>                       
         </div>
     </div>
 
 
     <div id="map" class="sidebar-map"></div>
-    
-   <div id="map" class="map"></div>
 
     <!-- scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/7.1.0/index.js" integrity="sha512-P5hrR+jPjZay1KnD49hwkDzZ/V44/0TzvmBXC47q3urXDnNubii20P52gHOdM3sEg0h9x1JtKSif83uCSeg3hQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://unpkg.com/ol-layerswitcher@4.1.1"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
+    <script src="https://unpkg.com/ol-layerswitcher@4.1.1" type="text/script"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <!--{% comment %} <script src="{{ url_for('static', path='js/ol3-sidebar.js') }}"></script>
-    <script src="{{ url_for('static', path='js/main.js') }}"></script> {% endcomment %} -->
-    <a href="https://github.com/Turbo87/sidebar-v2/"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
-    <script src="..static/js/ol3-sidebar.js"></script>
-    <script src="..static/js/main.js"></script>
+    <script src="{{ url_for('static', filename='ol3-sidebar.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

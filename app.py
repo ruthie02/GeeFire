@@ -3,6 +3,7 @@ from flask import redirect, url_for
 from flask import request, jsonify
 from flask_cors import CORS
 from src.ee_utils import *
+from flask import render_template
 import ee
 
 
@@ -14,10 +15,9 @@ CORS(app, support_credentials=True)
 def before():
     ee.Initialize()
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def map():
-    return redirect(url_for('static', filename='map.html'))
-
+    return render_template("map.html")
 
 # @app.route('/')
 # def hello_world():
