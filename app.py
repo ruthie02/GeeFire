@@ -5,15 +5,15 @@ from flask_cors import CORS
 from src.ee_utils import *
 from flask import render_template
 import ee
+import os
 
-
-app = Flask(__name__, template_folder='./templates', static_folder='./static')
+app = Flask(__name__)
 
 CORS(app, support_credentials=True)
 
-@app.before_request
-def before():
-    ee.Initialize()
+# @app.before_request
+# def before():
+#     ee.Initialize()
 
 @app.route('/')
 def map():
@@ -41,4 +41,4 @@ def map():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
