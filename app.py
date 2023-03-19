@@ -11,9 +11,9 @@ app = Flask(__name__)
 
 CORS(app, support_credentials=True)
 
-@app.before_request
-def before():
-    ee.Initialize()
+# @app.before_request
+# def before():
+#     ee.Initialize()
 
 app = Flask(__name__)
 
