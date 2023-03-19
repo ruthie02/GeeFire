@@ -22,6 +22,8 @@ app = Flask(__name__)
 def map():
     return render_template("map.html")
 
+# @app.route('/visualize', method='POST')
+
 
 
 if __name__ == '__main__':
