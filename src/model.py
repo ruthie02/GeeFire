@@ -49,3 +49,20 @@ import ee
 # # Apply platform-specific cloud mask
 # prefire_CM_ImCol = prefireImCol.map(maskS2sr)
 # postfire_CM_ImCol = postfireImCol.map(maskS2sr)
+
+
+def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
+    
+    area_of_interest = ee.FeatureCollection(ee_geom)
+
+    if satellite == "Sentinel": 
+        imCol = 'COPERNICUS/S2'
+        imagery = ee.ImageCollection(imCol)
+        prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], preFire_period[1]).filterBounds(area_of_interest))
+        postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], postFire_period[1]).filterBounds(area_of_interest))
+        cloudBitMask = ee.Number(2).pow(10).int()
+        cirrusBitMask = ee.Number(2).pow(11).int()
+        qa = image.select('QA60')
+
+    else: 
+

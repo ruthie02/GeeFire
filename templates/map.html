@@ -38,10 +38,6 @@
                 <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
                 <li><a href="https://github.com/Turbo87/sidebar-v2" role="tab" target="_blank"><i class="fa fa-github"></i></a></li>
             </ul>
-
-            <ul role="tablist">
-                <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
-            </ul>
         </div>
 
         <!-- Tab panes -->
@@ -61,25 +57,27 @@
                 <b> 2. Post-fire range dates </b> <br><br>
 
                 <input type="date" id="fire_start" name="fire_start" value="2020-06-01" min="2016-01-01"> -
-                <input type="date" id="fire_last" name="fire_start" value="2020-06-10" min="2016-01-01"><br><br>                  
+                <input type="date" id="fire_last" name="fire_last" value="2020-06-10" min="2016-01-01"><br><br>                  
                 
                 <b> 3. Select imagery </b> <br><br>
 
-                <input type="submit" name="action" value="Sentinel" id="display">
-                <input type="submit" name="action" value="Landsat" id="download"><br><br>
+                <input type="radio" id="SatImage" name="SatImage" value="Sentinel">
+                <label for="Sentinel">Sentinel</label>
+                <input type="radio" id="SatImage" name="SatImage" value="Landsat">
+                <label for="Landsat">Landsat</label><br><br> 
 
                 <b> 4. Calculate and Visualize</b> <br><br>
-                <input class="button is-primary" type="submit" value='Calculate and Visualize' id="calc">   
+                <input class="button is-primary" type="submit" value='Calculate and Visualize' id="calcviz">   
                 
                 <br><br>
 
                 <b> 5. Download Map and Statistics</b> <br><br>
-                <input class="button is-primary" type="submit" value='Download' id="calc">   
+                <input class="button is-primary" type="submit" value='Download' id="download">   
                 
                 <br><br>
                 
                 <b> 6. Restart</b> <br><br>
-                <input class="button is-primary" type="submit" value='Reset' id="undo">     
+                <input class="button is-primary" type="submit" value='Reset' id="reset">     
             </div>
             <br>                       
         </div>

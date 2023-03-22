@@ -5,6 +5,8 @@ var vector = new ol.layer.Vector({
     source: source,
   });
 
+vector.set('name', 'drawn-polygon')
+
 // raster layer
 var raster = new ol.layer.Tile({
         title: "OSM Base Map", 
@@ -17,8 +19,8 @@ var CreateMap = (layers) => {
         target: 'map',
         layers: layers,
         view: new ol.View({
-            center: ol.proj.transform([34.09, -17.87], 'EPSG:4326', 'EPSG:3857'),
-            zoom: 8
+            center: ol.proj.transform([0,20], 'EPSG:4326', 'EPSG:3857'),
+            zoom: 2
         })    
     });
     return map        
@@ -42,6 +44,114 @@ var addInteraction = () => {
     map.addInteraction(draw);
 };
 
-addInteraction()
+// add a function that will not allow the user to draw a polygon once the user has drawn one
+addInteraction();
+
+
+// Access element for pre-fire range dates
+var pre_start = document.getElementById('pre_start').value;
+var pre_last = document.getElementById('pre_last').value;
+
+// Access element for post range dates
+var fire_start = document.getElementById('fire_start').value;
+var fire_last = document.getElementById('fire_last').value;
+
+// Access what satellite collection to use
+var satellite = document.getElementById('SatImage').value;
+
+// Obtain AOI
+var features = source.getFeatures();
+var lastFeature = features[features.length - 1].clone();
+var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
+
+
+// Event handling to remove all the layers on the map without refreshing the page
+document.getElementById('reset').addEventListener('click', function () {
+    map.getLayers().getArray().forEach(layer => {
+        if (layer.values_.title == "Fire Area" | layer.values_.title == "After Fire" | layer.values_.title == "Before Fire"){
+            map.removeLayer(layer)
+        }
+      });
+      
+      // delete the drawn polygon from the map
+      var features = source.getFeatures();
+      var lastFeature = features[features.length - 1];    
+      source.removeFeature(lastFeature);
+
+});
+
+// Event handling to calculate statistics and visualize map
+document.getElementById('calcviz').addEventListener('click', function () {
+    document.getElementById('calcviz').value = '...'
+
+    const request = new Request(
+        {
+            method: 'POST',
+            body: JSON.stringify(
+                {
+                    bbox: bbox,
+                    pre_start: pre_start,
+                    pre_last: pre_last,
+                    fire_start: fire_start,
+                    fire_last: fire_last,
+                    satellite: satellite
+                }
+            )
+        }
+    );
+
+    fetch(request)
+    .then(response => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .then(response => {
+        // Before Fire
+        bfire = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["before_fire"]            
+          }),
+          title: "Before Fire"
+        });
+        // After Fire
+        afire = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["after_fire"]            
+          }),
+          title: "After Fire",
+        });
+
+        // Fire Area
+        final = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["fire_area_results"]            
+          }),
+          title: "Fire Area"
+        });
+        
+        map.addLayer(final);
+        map.addLayer(afire);
+        map.addLayer(bfire);
+        
+        var layerSwitcher = new ol.control.LayerSwitcher();
+        map.addControl(layerSwitcher);
+        document.getElementById('calcviz').value = 'calcviz'
+
+      }).catch(error => {
+        console.error(error);
+      });
+});
+
+
+
+
+
+
+
+
+
 
 
