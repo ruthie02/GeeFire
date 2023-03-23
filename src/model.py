@@ -1,6 +1,32 @@
 import ee
 
-ee.Initialize()
+sld_intervals = """
+                    <RasterSymbolizer> 
+                        <ColorMap type="intervals" extended="false" >
+                            <ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>
+                            <ColorMapEntry color="#7a8737" quantity="-250" label="-250" />
+                            <ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />
+                            <ColorMapEntry color="#0ae042" quantity="100" label="100" />
+                            <ColorMapEntry color="#fff70b" quantity="270" label="270" />
+                            <ColorMapEntry color="#ffaf38" quantity="440" label="440" />
+                            <ColorMapEntry color="#ff641b" quantity="660" label="660" />
+                            <ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />
+                        </ColorMap>         
+                    </RasterSymbolizer>
+                """
+grey = ['white', 'black']
+
+# initialize Earth Engine Visualization Parameters to display on the map
+geoviz = {
+    'sentinel_tc': {'bands': ['B4', 'B3', 'B2'], max: 2000, 'gamma': 1.5}, 
+    'landsat_tc': {'bands': ['B4', 'B3', 'B2'], min: 0, max: 4000, 'gamma': 1.5}, 
+    'grey': grey, 
+    'sld_intervals': sld_intervals
+
+}
+
+# def display_map(pre_processing_params):
+
 
 # cloud masking for Sentinel-2 image collection
 
@@ -36,19 +62,21 @@ def maskS2sr(image):
   return image.updateMask(mask).select("B[0-9]*").copyProperties(image, ["system:time_start"])
 
 
-def processing(ee_geom, satellite, preFire_period, postFire_period):
+def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
     
     # define the location of the geometry
     area_of_interest = ee.FeatureCollection(ee_geom)
 
     # filter the EE image collection based on range dates and area of interest
     # pre-fire image collection filtering
-    prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], preFire_period[1]).filterBounds(area_of_interest))
+    prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], 
+                                                         preFire_period[1]).filterBounds(area_of_interest))
     # post-fire image collection filtering
-    postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], postFire_period[1]).filterBounds(area_of_interest))
+    postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], 
+                                                          postFire_period[1]).filterBounds(area_of_interest))
 
     # defining which satellite to use 
-    if satellite == "Sentinel": 
+    if satellite == "Sentinel-2": 
         imCol = 'COPERNICUS/S2'
         imagery = ee.ImageCollection(imCol)
     else: 
@@ -72,6 +100,32 @@ def processing(ee_geom, satellite, preFire_period, postFire_period):
     pre_cm_mos = prefire_CM_ImCol.mosaic().clip(area_of_interest)
     # Post-fire mosaicked Cloud Masked Image
     post_cm_mos = postfire_CM_ImCol.mosaic().clip(area_of_interest)
+
+    return ({'prefire_mosaic': pre_mos, 'postfire_mosaic': post_mos, 'cloudmasked_prefire_mosaic': pre_cm_mos, 
+             'cloudmasked_prefire_mosaic': post_cm_mos, 'area_of_interest': area_of_interest, 'satellite': satellite})
+
+def burnSeverity(pre_processing_params, statistics=True):
+
+    satellite = pre_processing_params["satellite"]
+    cloudmasked_prefire_mosaic = pre_processing_params["cloudmasked_prefire_mosaic"]
+    cloudmasked_postfire_mosaic = pre_processing_params["cloudmasked_prefire_mosaic"]
+
+    #------------------ Calculate NBR for pre- and post-fire images ---------------------------#
+    
+    # Apply platform-specific NBR = (NIR-SWIR2) / (NIR+SWIR2)
+
+    if satellite == 'Sentinel-2':
+        preNBR = cloudmasked_prefire_mosaic.normalizedDifference(['B8', 'B12'])
+        postNBR = cloudmasked_postfire_mosaic.normalizedDifference(['B8', 'B12'])
+    else:
+        preNBR = cloudmasked_prefire_mosaic.normalizedDifference(['B5', 'B7'])
+        postNBR = cloudmasked_postfire_mosaic.normalizedDifference(['B5', 'B7'])
+
+
+
+
+
+
 
     
 
