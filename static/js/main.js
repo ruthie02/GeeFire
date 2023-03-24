@@ -1,3 +1,6 @@
+var origin = "http:///127.0.0.1"
+var port = "5000"
+
 //vector layer
 var source = new ol.source.Vector({wrapX: false});
 var vector = new ol.layer.Vector({
@@ -44,27 +47,6 @@ var addInteraction = () => {
     map.addInteraction(draw);
 };
 
-// add a function that will not allow the user to draw a polygon once the user has drawn one
-addInteraction();
-
-
-// Access element for pre-fire range dates
-var pre_start = document.getElementById('pre_start').value;
-var pre_last = document.getElementById('pre_last').value;
-
-// Access element for post range dates
-var fire_start = document.getElementById('fire_start').value;
-var fire_last = document.getElementById('fire_last').value;
-
-// Access what satellite collection to use
-var satellite = document.getElementById('SatImage').value;
-
-// Obtain AOI
-var features = source.getFeatures();
-var lastFeature = features[features.length - 1].clone();
-var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
-
-
 // Event handling to remove all the layers on the map without refreshing the page
 document.getElementById('reset').addEventListener('click', function () {
     map.getLayers().getArray().forEach(layer => {
@@ -80,11 +62,29 @@ document.getElementById('reset').addEventListener('click', function () {
 
 });
 
-// Event handling to calculate statistics and visualize map
 document.getElementById('calcviz').addEventListener('click', function () {
     document.getElementById('calcviz').value = '...'
 
+        // Access element for pre-fire range dates
+        var pre_start = document.getElementById('pre_start').value;
+        var pre_last = document.getElementById('pre_last').value;
+    
+        // Access element for post range dates
+        var fire_start = document.getElementById('fire_start').value;
+        var fire_last = document.getElementById('fire_last').value;
+    
+        // Access what satellite collection to use
+        var satellite = document.getElementById('SatImage').value;
+    
+        // Obtain AOI
+        var features = source.getFeatures();
+        var lastFeature = features[features.length - 1].clone();
+        var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
+    
+        console.log(pre_start, pre_last, fire_start, fire_last, satellite, bbox);
+
     const request = new Request(
+        origin.concat(":").concat(port).concat("/visualize/"),
         {
             method: 'POST',
             body: JSON.stringify(
@@ -116,24 +116,24 @@ document.getElementById('calcviz').addEventListener('click', function () {
           }),
           title: "Before Fire"
         });
-        // After Fire
-        afire = new ol.layer.Tile({
-          source: new ol.source.XYZ({            
-            url: response["after_fire"]            
-          }),
-          title: "After Fire",
-        });
+        // // After Fire
+        // afire = new ol.layer.Tile({
+        //   source: new ol.source.XYZ({            
+        //     url: response["after_fire"]            
+        //   }),
+        //   title: "After Fire",
+        // });
 
-        // Fire Area
-        final = new ol.layer.Tile({
-          source: new ol.source.XYZ({            
-            url: response["fire_area_results"]            
-          }),
-          title: "Fire Area"
-        });
+        // // Fire Area
+        // final = new ol.layer.Tile({
+        //   source: new ol.source.XYZ({            
+        //     url: response["fire_area_results"]            
+        //   }),
+        //   title: "Fire Area"
+        // });
         
-        map.addLayer(final);
-        map.addLayer(afire);
+        // map.addLayer(final);
+        // map.addLayer(afire);
         map.addLayer(bfire);
         
         var layerSwitcher = new ol.control.LayerSwitcher();
@@ -145,13 +145,4 @@ document.getElementById('calcviz').addEventListener('click', function () {
       });
 });
 
-
-
-
-
-
-
-
-
-
-
+addInteraction();

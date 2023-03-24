@@ -1,5 +1,7 @@
 import ee
 
+ee.Initialize()
+
 sld_intervals = """
                     <RasterSymbolizer> 
                         <ColorMap type="intervals" extended="false" >
@@ -18,15 +20,24 @@ grey = ['white', 'black']
 
 # initialize Earth Engine Visualization Parameters to display on the map
 geoviz = {
-    'sentinel_tc': {'bands': ['B4', 'B3', 'B2'], max: 2000, 'gamma': 1.5}, 
-    'landsat_tc': {'bands': ['B4', 'B3', 'B2'], min: 0, max: 4000, 'gamma': 1.5}, 
+    'sentinel_tc': {'bands': ['B4', 'B3', 'B2'], 'max': 2000, 'gamma': 1.5}, 
+    'landsat_tc': {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 4000, 'gamma': 1.5}, 
     'grey': grey, 
     'sld_intervals': sld_intervals
 
 }
 
-# def display_map(pre_processing_params):
+def display_map(pre_processing_params, geoviz):
+    if pre_processing_params['satellite'] == "Sentinel-2": 
+        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], geoviz["sentinel_tc"])
+        before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
+    else: 
+        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], geoviz["landsat_tc"])
+        before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
 
+    display_layer = {"before_fire": before_fire_id}
+
+    return display_layer
 
 # cloud masking for Sentinel-2 image collection
 
@@ -67,6 +78,14 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
     # define the location of the geometry
     area_of_interest = ee.FeatureCollection(ee_geom)
 
+    # defining which satellite to use 
+    if satellite == "Sentinel-2": 
+        imCol = 'COPERNICUS/S2'
+        imagery = ee.ImageCollection(imCol)
+    else: 
+        imCol = 'LANDSAT/LC08/C01/T1_SR'
+        imagery = ee.ImageCollection(imCol)
+
     # filter the EE image collection based on range dates and area of interest
     # pre-fire image collection filtering
     prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], 
@@ -75,13 +94,7 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
     postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], 
                                                           postFire_period[1]).filterBounds(area_of_interest))
 
-    # defining which satellite to use 
-    if satellite == "Sentinel-2": 
-        imCol = 'COPERNICUS/S2'
-        imagery = ee.ImageCollection(imCol)
-    else: 
-        imCol = 'LANDSAT/LC08/C01/T1_SR'
-        imagery = ee.ImageCollection(imCol)
+
 
     # calling the platform dependent masking algorithm within the preprocessing function 
     prefire_CM_ImCol = prefireImCol.map(maskS2sr)
@@ -123,6 +136,19 @@ def burnSeverity(pre_processing_params, statistics=True):
 
 
 
+xMin = -122.09
+yMin = 37.42
+xMax = -122.08
+yMax = 37.43
+
+ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
+
+satellite = "Sentinel-2"
+preFire_period = ("2019-05-01", "2019-05-10")
+postFire_period = ("2020-06-01", "2020-06-10")
+
+preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+print(display_map(preprocessing_params, geoviz))
 
 
 

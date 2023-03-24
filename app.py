@@ -1,29 +1,32 @@
 from flask import Flask
-from flask import request
+from flask import request, jsonify
 from flask_cors import CORS
 from src.ee_utils import *
 from flask import render_template
 import ee
-from src.model import preprocessing
+from src.model import preprocessing, display_map
 
 app = Flask(__name__)
 
-CORS(app, support_credentials=True)
+# CORS(app, support_credentials=True)
 
-# @app.before_request
-# def before():
-#     ee.Initialize()
+@app.before_request
+def before():
+    ee.Initialize()
+    CORS(app)
+
+
 
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.get('/')
 def map():
     return render_template("map.html")
 
-@app.route('/visualize', methods=["ROUTE"])
-def display_results(request):
-    request_parameters = request.get_json()
+@app.post('/visualize')
+async def display_results(request: request):
+    request_parameters = await request.get_json()
 
     # get the parameters set by the user
 
@@ -43,6 +46,9 @@ def display_results(request):
 
     # run the burn severity model 
     pre_processing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+    tile_id = display_map(pre_processing_params)
+
+    return tile_id
 
 
 
