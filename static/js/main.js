@@ -116,13 +116,13 @@ document.getElementById('calcviz').addEventListener('click', function () {
           }),
           title: "Before Fire"
         });
-        // // After Fire
-        // afire = new ol.layer.Tile({
-        //   source: new ol.source.XYZ({            
-        //     url: response["after_fire"]            
-        //   }),
-        //   title: "After Fire",
-        // });
+        // After Fire
+        afire = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["after_fire"]            
+          }),
+          title: "After Fire",
+        });
 
         // // Fire Area
         // final = new ol.layer.Tile({
@@ -133,7 +133,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
         // });
         
         // map.addLayer(final);
-        // map.addLayer(afire);
+        map.addLayer(afire);
         map.addLayer(bfire);
         
         var layerSwitcher = new ol.control.LayerSwitcher();

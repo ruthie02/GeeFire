@@ -6,7 +6,7 @@ from flask import render_template
 import ee
 from src.model import preprocessing, display_map
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path = '/static')
 
 # CORS(app, support_credentials=True)
 
@@ -15,14 +15,11 @@ def before():
     ee.Initialize()
     CORS(app)
 
-
-
 app = Flask(__name__)
-
 
 @app.get('/')
 def map():
-    return render_template("map.html")
+    return app.send_static_file("map.html")
 
 @app.post('/visualize')
 async def display_results(request: request):
@@ -49,12 +46,6 @@ async def display_results(request: request):
     tile_id = display_map(pre_processing_params)
 
     return tile_id
-
-
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

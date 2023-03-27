@@ -27,15 +27,21 @@ geoviz = {
 
 }
 
-def display_map(pre_processing_params, geoviz):
+def display_map(pre_processing_params):
     if pre_processing_params['satellite'] == "Sentinel-2": 
-        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], geoviz["sentinel_tc"])
-        before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
-    else: 
-        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], geoviz["landsat_tc"])
+        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], **geoviz["sentinel_tc"])
         before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
 
-    display_layer = {"before_fire": before_fire_id}
+        after_fire = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["sentinel_tc"])
+        after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
+    else: 
+        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], **geoviz["landsat_tc"])
+        before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
+
+        after_fire = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["landsat_tc"])
+        after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
+
+    display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id}
 
     return display_layer
 
@@ -57,14 +63,14 @@ def maskS2sr(image):
 
 # cloud masking for Landsat-8 image collection
 
-def maskS2sr(image):
+def maskL8sr(image):
    # Bits 3 and 5 are cloud shadow and cloud, respectively.
   cloudShadowBitMask = 1 << 3
   cloudsBitMask = 1 << 5
   snowBitMask = 1 << 4
 
   # Get the pixel QA band.
-  qa = image.select('pixel_qa');
+  qa = image.select('pixel_qa')
   
   # All flags should be set to zero, indicating clear conditions.
   mask = qa.bitwiseAnd(cloudShadowBitMask).eq(0) and (qa.bitwiseAnd(cloudsBitMask).eq(0)) and (qa.bitwiseAnd(snowBitMask).eq(0))
@@ -97,8 +103,15 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
 
 
     # calling the platform dependent masking algorithm within the preprocessing function 
-    prefire_CM_ImCol = prefireImCol.map(maskS2sr)
-    postfire_CM_ImCol = postfireImCol.map(maskS2sr)
+
+    if satellite == "Sentinel-2":
+        prefire_CM_ImCol = prefireImCol.map(maskS2sr)
+        postfire_CM_ImCol = postfireImCol.map(maskS2sr)
+        
+    else: 
+        prefire_CM_ImCol = prefireImCol.map(maskL8sr)
+        postfire_CM_ImCol = postfireImCol.map(maskL8sr)
+
 
     # Mosaic and clip images to study area
     # This is especially important, if the collections created above contain more than one image
@@ -115,7 +128,7 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
     post_cm_mos = postfire_CM_ImCol.mosaic().clip(area_of_interest)
 
     return ({'prefire_mosaic': pre_mos, 'postfire_mosaic': post_mos, 'cloudmasked_prefire_mosaic': pre_cm_mos, 
-             'cloudmasked_prefire_mosaic': post_cm_mos, 'area_of_interest': area_of_interest, 'satellite': satellite})
+             'cloudmasked_postfire_mosaic': post_cm_mos, 'area_of_interest': area_of_interest, 'satellite': satellite})
 
 def burnSeverity(pre_processing_params, statistics=True):
 
@@ -136,6 +149,20 @@ def burnSeverity(pre_processing_params, statistics=True):
 
 
 
+# xMin = -122.09
+# yMin = 37.42
+# xMax = -122.08
+# yMax = 37.43
+
+# ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
+
+# satellite = "Sentinel-2"
+# preFire_period = ("2019-05-01", "2019-05-10")
+# postFire_period = ("2020-06-01", "2020-06-10")
+
+# preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+# print(display_map(preprocessing_params))
+
 xMin = -122.09
 yMin = 37.42
 xMax = -122.08
@@ -143,12 +170,13 @@ yMax = 37.43
 
 ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
 
-satellite = "Sentinel-2"
+satellite = "Landsat-8"
 preFire_period = ("2019-05-01", "2019-05-10")
 postFire_period = ("2020-06-01", "2020-06-10")
 
 preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
-print(display_map(preprocessing_params, geoviz))
+print(display_map(preprocessing_params))
+
 
 
 
