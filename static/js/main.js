@@ -135,15 +135,15 @@ document.getElementById('calcviz').addEventListener('click', function () {
           title: "After Fire",
         });
 
-        // // Fire Area
-        // final = new ol.layer.Tile({
-        //   source: new ol.source.XYZ({            
-        //     url: response["fire_area_results"]            
-        //   }),
-        //   title: "Fire Area"
-        // });
+        // Fire Area
+        final = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["fire_area"]            
+          }),
+          title: "Fire Area"
+        });
         
-        // map.addLayer(final);
+        map.addLayer(final);
         map.addLayer(afire);
         map.addLayer(bfire);
         

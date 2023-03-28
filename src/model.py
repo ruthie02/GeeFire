@@ -2,29 +2,28 @@ import ee
 
 ee.Initialize()
 
-sld_intervals = """
-                    <RasterSymbolizer> 
-                        <ColorMap type="intervals" extended="false" >
-                            <ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>
-                            <ColorMapEntry color="#7a8737" quantity="-250" label="-250" />
-                            <ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />
-                            <ColorMapEntry color="#0ae042" quantity="100" label="100" />
-                            <ColorMapEntry color="#fff70b" quantity="270" label="270" />
-                            <ColorMapEntry color="#ffaf38" quantity="440" label="440" />
-                            <ColorMapEntry color="#ff641b" quantity="660" label="660" />
-                            <ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />
-                        </ColorMap>         
-                    </RasterSymbolizer>
-                """
+# sld_intervals = """
+#                     <RasterSymbolizer> 
+#                         <ColorMap type="intervals" extended="false" >
+#                             <ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>
+#                             <ColorMapEntry color="#7a8737" quantity="-250" label="-250" />
+#                             <ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />
+#                             <ColorMapEntry color="#0ae042" quantity="100" label="100" />
+#                             <ColorMapEntry color="#fff70b" quantity="270" label="270" />
+#                             <ColorMapEntry color="#ffaf38" quantity="440" label="440" />
+#                             <ColorMapEntry color="#ff641b" quantity="660" label="660" />
+#                             <ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />
+#                         </ColorMap>         
+# #                     </RasterSymbolizer>
+#                 """
 grey = ['white', 'black']
 
 # initialize Earth Engine Visualization Parameters to display on the map
 geoviz = {
     'sentinel_tc': {'bands': ['B4', 'B3', 'B2'], 'max': 2000, 'gamma': 1.5}, 
     'landsat_tc': {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 4000, 'gamma': 1.5}, 
-    'grey': grey, 
+    'grey': {'min': -1000, 'max': 1000, 'palette': grey}, 
     'sld_intervals': sld_intervals
-
 }
 
 
@@ -36,8 +35,11 @@ def display_map(pre_processing_params):
         after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["sentinel_tc"])
         after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
 
-        # fire_area_results = ee.Image.sldStyle(pre_processing_params["dNBR"], geoviz["sld_intervals"])
-        # fire_area_results = ee.data.getMapId({"image": fire_area_results})["tile_fetcher"].url_format
+        fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
+        fire_area_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
+
+        fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"], **geoviz["grey"])
+        fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
     else: 
         before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["landsat_tc"])
         before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
@@ -45,10 +47,10 @@ def display_map(pre_processing_params):
         after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["landsat_tc"])
         after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
 
-        # fire_area_results = ee.Image.sldStyle(pre_processing_params["dNBR"], geoviz["sld_intervals"])
-        # fire_area_results_id = ee.data.getMapId({"image": fire_area_results})["tile_fetcher"].url_format
+        fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"], **geoviz["grey"])
+        fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
 
-    display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id}
+    display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id, "fire_area": fire_area_id}
 
     return display_layer
 
@@ -126,6 +128,10 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
         preNBR = pre_cm_mos.normalizedDifference(['B8', 'B12'])
         postNBR = post_cm_mos.normalizedDifference(['B8', 'B12'])
 
+        dNBR_unscaled = preNBR.subtract(postNBR)
+        # Scale product to USGS standards
+        dNBR = dNBR_unscaled.multiply(1000)
+
 
     else: 
         imCol = 'LANDSAT/LC08/C01/T1_SR'
@@ -139,8 +145,8 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
                                                             postFire_period[1]).filterBounds(area_of_interest))
         
         # applying the Landsat-8 cloud masking algorithm to the image collection 
-        prefire_CM_ImCol = prefireImCol.map(maskS2sr)
-        postfire_CM_ImCol = postfireImCol.map(maskS2sr)
+        prefire_CM_ImCol = prefireImCol.map(maskL8sr)
+        postfire_CM_ImCol = postfireImCol.map(maskL8sr)
 
         # Mosaic and clip images to study area
         # This is especially important, if the collections created above contain more than one image
@@ -159,12 +165,10 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
         # Calculate NBR for pre- and post-fire images
         preNBR = pre_cm_mos.normalizedDifference(['B5', 'B7'])
         postNBR = post_cm_mos.normalizedDifference(['B5', 'B7'])
-
-
-    dNBR_unscaled = preNBR.subtract(postNBR)
-
-    # Scale product to USGS standards
-    dNBR = dNBR_unscaled.multiply(1000)
+        
+        dNBR_unscaled = preNBR.subtract(postNBR)
+        # Scale product to USGS standards
+        dNBR = dNBR_unscaled.multiply(1000)
 
     return ({'prefire_mosaic': pre_mos, 'postfire_mosaic': post_mos, 'cloudmasked_prefire_mosaic': pre_cm_mos, 
              'cloudmasked_postfire_mosaic': post_cm_mos, 'dNBR': dNBR, 'area_of_interest': area_of_interest, 'satellite': satellite})
@@ -198,19 +202,20 @@ def burnSeverity(pre_processing_params, statistics=True):
 # preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
 # print(display_map(preprocessing_params))
 
-# xMin = -122.09
-# yMin = 37.42
-# xMax = -122.08
-# yMax = 37.43
+xMin = -122.09
+yMin = 37.42
+xMax = -122.08
+yMax = 37.43
 
-# ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
+ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
 
-# satellite = "Landsat-8"
-# preFire_period = ("2019-05-01", "2019-05-10")
-# postFire_period = ("2020-06-01", "2020-06-10")
+satellite = "Landsat-8"
+preFire_period = ("2019-05-01", "2019-05-10")
+postFire_period = ("2020-06-01", "2020-06-10")
 
-# preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
-# print(burnSeverity(preprocessing_params))
+preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+print(display_map(preprocessing_params))
+
 
 
 
