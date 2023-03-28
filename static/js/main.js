@@ -8,13 +8,23 @@ var vector = new ol.layer.Vector({
     source: source,
   });
 
-vector.set('name', 'drawn-polygon')
 
 // raster layer
-var raster = new ol.layer.Tile({
+var osm = new ol.layer.Tile({
         title: "OSM Base Map", 
-            source: new ol.source.OSM()
+        source: new ol.source.OSM()
     });
+
+// var topomap = new ol.layer.Tile({
+//     title: "Esri World Imagery", 
+//     source: new ol.source.XYZ({
+//       attributions: ['Powered by Esri',
+//              'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'],
+//       attributionsCollapsible: false,
+//       url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+//       maxZoom: 29
+//   })
+// });
 
 // Create Map
 var CreateMap = (layers) => {
@@ -29,7 +39,8 @@ var CreateMap = (layers) => {
     return map        
 }
 
-var map = CreateMap(layers=[raster, vector]);
+var map = CreateMap(layers=[osm, vector]);
+
 
 // Add sidebar
 var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
@@ -84,7 +95,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
         console.log(pre_start, pre_last, fire_start, fire_last, satellite, bbox);
 
     const request = new Request(
-        origin.concat(":").concat(port).concat("/visualize/"),
+      'http://127.0.0.1:5000/visualize',
         {
             method: 'POST',
             body: JSON.stringify(
@@ -138,7 +149,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
         
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
-        document.getElementById('calcviz').value = 'calcviz'
+        document.getElementById('calcviz').value = 'Calculate and Visualize'
 
       }).catch(error => {
         console.error(error);

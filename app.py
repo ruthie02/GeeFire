@@ -6,7 +6,7 @@ from flask import render_template
 import ee
 from src.model import preprocessing, display_map
 
-app = Flask(__name__, static_url_path = '/static')
+app = Flask(__name__)
 
 # CORS(app, support_credentials=True)
 
@@ -19,12 +19,13 @@ app = Flask(__name__)
 
 @app.get('/')
 def map():
-    return app.send_static_file("map.html")
+    return render_template("map.html")
 
-@app.post('/visualize')
-async def display_results(request: request):
-    request_parameters = await request.get_json()
-
+@app.route('/visualize', methods=['POST'])
+def visualize(): #display_results():
+    request_parameters = request.get_json(force=True)
+    
+    print(request_parameters)
     # get the parameters set by the user
 
     x_min, y_min, x_max, y_max = [float(coords) for coords in request_parameters["bbox"].split(",")]
@@ -35,7 +36,7 @@ async def display_results(request: request):
     satellite = request_parameters["satellite"]
 
     # create Google Earth Engine Geometry from the bounding bax parameters
-    ee_geom = ee.Geometry.Rectange([x_min, y_min, x_max, y_max])
+    ee_geom = ee.Geometry.Rectangle([x_min, y_min, x_max, y_max])
 
     # create the range dates from the date parameters selected by the user
     preFire_period = (pre_start, pre_last)

@@ -27,19 +27,26 @@ geoviz = {
 
 }
 
+
 def display_map(pre_processing_params):
     if pre_processing_params['satellite'] == "Sentinel-2": 
-        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], **geoviz["sentinel_tc"])
+        before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["sentinel_tc"])
         before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
 
-        after_fire = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["sentinel_tc"])
+        after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["sentinel_tc"])
         after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
+
+        # fire_area_results = ee.Image.sldStyle(pre_processing_params["dNBR"], geoviz["sld_intervals"])
+        # fire_area_results = ee.data.getMapId({"image": fire_area_results})["tile_fetcher"].url_format
     else: 
-        before_fire = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], **geoviz["landsat_tc"])
+        before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["landsat_tc"])
         before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
 
-        after_fire = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["landsat_tc"])
+        after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["landsat_tc"])
         after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
+
+        # fire_area_results = ee.Image.sldStyle(pre_processing_params["dNBR"], geoviz["sld_intervals"])
+        # fire_area_results_id = ee.data.getMapId({"image": fire_area_results})["tile_fetcher"].url_format
 
     display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id}
 
@@ -88,47 +95,79 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
     if satellite == "Sentinel-2": 
         imCol = 'COPERNICUS/S2'
         imagery = ee.ImageCollection(imCol)
+
+        # filter the EE image collection based on range dates and area of interest
+        # pre-fire image collection filtering
+        prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], 
+                                                            preFire_period[1]).filterBounds(area_of_interest))
+        # post-fire image collection filtering
+        postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], 
+                                                            postFire_period[1]).filterBounds(area_of_interest))
+        
+        # applying the Sentinel-2 cloud masking algorithm to the image collection 
+        prefire_CM_ImCol = prefireImCol.map(maskS2sr)
+        postfire_CM_ImCol = postfireImCol.map(maskS2sr)
+
+        # Mosaic and clip images to study area
+        # This is especially important, if the collections created above contain more than one image
+        # (if it is only one, the mosaic() does not affect the imagery).
+
+        # Pre-fire mosaicked True Color Image
+        pre_mos = prefireImCol.mosaic().clip(area_of_interest)
+        # Post-Fire mosaicked True Color Image
+        post_mos = postfireImCol.mosaic().clip(area_of_interest)
+
+        # Pre-fire mosaicked Cloud Masked Image
+        pre_cm_mos = prefire_CM_ImCol.mosaic().clip(area_of_interest)
+        # Post-fire mosaicked Cloud Masked Image
+        post_cm_mos = postfire_CM_ImCol.mosaic().clip(area_of_interest)
+
+        # Calculate NBR for pre- and post-fire images
+        preNBR = pre_cm_mos.normalizedDifference(['B8', 'B12'])
+        postNBR = post_cm_mos.normalizedDifference(['B8', 'B12'])
+
+
     else: 
         imCol = 'LANDSAT/LC08/C01/T1_SR'
         imagery = ee.ImageCollection(imCol)
 
-    # filter the EE image collection based on range dates and area of interest
-    # pre-fire image collection filtering
-    prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], 
-                                                         preFire_period[1]).filterBounds(area_of_interest))
-    # post-fire image collection filtering
-    postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], 
-                                                          postFire_period[1]).filterBounds(area_of_interest))
-
-
-
-    # calling the platform dependent masking algorithm within the preprocessing function 
-
-    if satellite == "Sentinel-2":
+        # filtering the image collection using the range dates and area of interest
+        prefireImCol = ee.ImageCollection(imagery.filterDate(preFire_period[0], 
+                                                            preFire_period[1]).filterBounds(area_of_interest))
+        # post-fire image collection filtering
+        postfireImCol = ee.ImageCollection(imagery.filterDate(postFire_period[0], 
+                                                            postFire_period[1]).filterBounds(area_of_interest))
+        
+        # applying the Landsat-8 cloud masking algorithm to the image collection 
         prefire_CM_ImCol = prefireImCol.map(maskS2sr)
         postfire_CM_ImCol = postfireImCol.map(maskS2sr)
-        
-    else: 
-        prefire_CM_ImCol = prefireImCol.map(maskL8sr)
-        postfire_CM_ImCol = postfireImCol.map(maskL8sr)
+
+        # Mosaic and clip images to study area
+        # This is especially important, if the collections created above contain more than one image
+        # (if it is only one, the mosaic() does not affect the imagery).
+
+        # Pre-fire mosaicked True Color Image
+        pre_mos = prefireImCol.mosaic().clip(area_of_interest)
+        # Post-Fire mosaicked True Color Image
+        post_mos = postfireImCol.mosaic().clip(area_of_interest)
+
+        # Pre-fire mosaicked Cloud Masked Image
+        pre_cm_mos = prefire_CM_ImCol.mosaic().clip(area_of_interest)
+        # Post-fire mosaicked Cloud Masked Image
+        post_cm_mos = postfire_CM_ImCol.mosaic().clip(area_of_interest)
+
+        # Calculate NBR for pre- and post-fire images
+        preNBR = pre_cm_mos.normalizedDifference(['B5', 'B7'])
+        postNBR = post_cm_mos.normalizedDifference(['B5', 'B7'])
 
 
-    # Mosaic and clip images to study area
-    # This is especially important, if the collections created above contain more than one image
-    # (if it is only one, the mosaic() does not affect the imagery).
+    dNBR_unscaled = preNBR.subtract(postNBR)
 
-    # Pre-fire mosaicked True Color Image
-    pre_mos = prefireImCol.mosaic().clip(area_of_interest)
-    # Post-Fire mosaicked True Color Image
-    post_mos = postfireImCol.mosaic().clip(area_of_interest)
-
-    # Pre-fire mosaicked Cloud Masked Image
-    pre_cm_mos = prefire_CM_ImCol.mosaic().clip(area_of_interest)
-    # Post-fire mosaicked Cloud Masked Image
-    post_cm_mos = postfire_CM_ImCol.mosaic().clip(area_of_interest)
+    # Scale product to USGS standards
+    dNBR = dNBR_unscaled.multiply(1000)
 
     return ({'prefire_mosaic': pre_mos, 'postfire_mosaic': post_mos, 'cloudmasked_prefire_mosaic': pre_cm_mos, 
-             'cloudmasked_postfire_mosaic': post_cm_mos, 'area_of_interest': area_of_interest, 'satellite': satellite})
+             'cloudmasked_postfire_mosaic': post_cm_mos, 'dNBR': dNBR, 'area_of_interest': area_of_interest, 'satellite': satellite})
 
 def burnSeverity(pre_processing_params, statistics=True):
 
@@ -140,12 +179,8 @@ def burnSeverity(pre_processing_params, statistics=True):
     
     # Apply platform-specific NBR = (NIR-SWIR2) / (NIR+SWIR2)
 
-    if satellite == 'Sentinel-2':
-        preNBR = cloudmasked_prefire_mosaic.normalizedDifference(['B8', 'B12'])
-        postNBR = cloudmasked_postfire_mosaic.normalizedDifference(['B8', 'B12'])
-    else:
-        preNBR = cloudmasked_prefire_mosaic.normalizedDifference(['B5', 'B7'])
-        postNBR = cloudmasked_postfire_mosaic.normalizedDifference(['B5', 'B7'])
+
+
 
 
 
@@ -163,19 +198,20 @@ def burnSeverity(pre_processing_params, statistics=True):
 # preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
 # print(display_map(preprocessing_params))
 
-xMin = -122.09
-yMin = 37.42
-xMax = -122.08
-yMax = 37.43
+# xMin = -122.09
+# yMin = 37.42
+# xMax = -122.08
+# yMax = 37.43
 
-ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
+# ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
 
-satellite = "Landsat-8"
-preFire_period = ("2019-05-01", "2019-05-10")
-postFire_period = ("2020-06-01", "2020-06-10")
+# satellite = "Landsat-8"
+# preFire_period = ("2019-05-01", "2019-05-10")
+# postFire_period = ("2020-06-01", "2020-06-10")
 
-preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
-print(display_map(preprocessing_params))
+# preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+# print(burnSeverity(preprocessing_params))
+
 
 
 
