@@ -2,20 +2,20 @@ import ee
 
 ee.Initialize()
 
-# sld_intervals = """
-#                     <RasterSymbolizer> 
-#                         <ColorMap type="intervals" extended="false" >
-#                             <ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>
-#                             <ColorMapEntry color="#7a8737" quantity="-250" label="-250" />
-#                             <ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />
-#                             <ColorMapEntry color="#0ae042" quantity="100" label="100" />
-#                             <ColorMapEntry color="#fff70b" quantity="270" label="270" />
-#                             <ColorMapEntry color="#ffaf38" quantity="440" label="440" />
-#                             <ColorMapEntry color="#ff641b" quantity="660" label="660" />
-#                             <ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />
-#                         </ColorMap>         
-# #                     </RasterSymbolizer>
-#                 """
+sld_intervals = \
+  '<RasterSymbolizer>' \
+    '<ColorMap type="intervals" extended="false" >' + \
+      '<ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>' + \
+      '<ColorMapEntry color="#7a8737" quantity="-250" label="-250" />' + \
+      '<ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />' + \
+      '<ColorMapEntry color="#0ae042" quantity="100" label="100" />' + \
+      '<ColorMapEntry color="#fff70b" quantity="270" label="270" />' + \
+      '<ColorMapEntry color="#ffaf38" quantity="440" label="440" />' + \
+      '<ColorMapEntry color="#ff641b" quantity="660" label="660" />' + \
+      '<ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />' + \
+    '</ColorMap>' + \
+  '</RasterSymbolizer>'
+
 grey = ['white', 'black']
 
 # initialize Earth Engine Visualization Parameters to display on the map
@@ -38,7 +38,10 @@ def display_map(pre_processing_params):
         fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
         fire_area_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
 
-        fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"], **geoviz["grey"])
+        # fire_area = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
+        # fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
+
+        fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"](**geoviz["sld_intervals"]), {})
         fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
     else: 
         before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["landsat_tc"])
@@ -47,7 +50,10 @@ def display_map(pre_processing_params):
         after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["landsat_tc"])
         after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
 
-        fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"], **geoviz["grey"])
+        # fire_area = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
+        # fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
+
+        fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"](**geoviz["sld_intervals"]), {})
         fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
 
     display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id, "fire_area": fire_area_id}
