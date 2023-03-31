@@ -4,13 +4,13 @@ var port = "5000"
 //vector layer
 var source = new ol.source.Vector({wrapX: false});
 var vector = new ol.layer.Vector({
-    title: "geometry",
+    title: "Geometry",
     source: source,
   });
 
 
 // raster layer
-var osm = new ol.layer.Tile({
+var raster = new ol.layer.Tile({
         title: "OSM Base Map", 
         source: new ol.source.OSM()
     });
@@ -39,7 +39,7 @@ var CreateMap = (layers) => {
     return map        
 }
 
-var map = CreateMap(layers=[osm, vector]);
+var map = CreateMap(layers=[raster, vector]);
 
 
 // Add sidebar
@@ -92,7 +92,6 @@ document.getElementById('calcviz').addEventListener('click', function () {
         var lastFeature = features[features.length - 1].clone();
         var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
     
-        console.log(pre_start, pre_last, fire_start, fire_last, satellite, bbox);
 
     const request = new Request(
       'http://127.0.0.1:5000/visualize',

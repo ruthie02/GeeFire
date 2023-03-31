@@ -220,7 +220,7 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
         dNBR_unscaled = preNBR.subtract(postNBR)
         # Scale product to USGS standards
         dNBR = dNBR_unscaled.multiply(1000)
-        print(dNBR.bandNames().getInfo())
+
 
         # Seperate result into 8 burn severity classes --> to be used for Statistics computation
         thresholds = ee.Image([-1000, -251, -101, 99, 269, 439, 659, 2000])
@@ -304,21 +304,21 @@ def burnSeverity(pre_processing_params):
 # # preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
 # # print(display_map(preprocessing_params))
 
-xMin = -122.09
-yMin = 37.42
-xMax = -122.08
-yMax = 37.43
+# xMin = -122.09
+# yMin = 37.42
+# xMax = -122.08
+# yMax = 37.43
 
-ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
+# ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
 
-satellite = "Landsat-8"
-preFire_period = ("2019-05-01", "2019-05-10")
-postFire_period = ("2020-06-01", "2020-06-10")
+# satellite = "Landsat-8"
+# preFire_period = ("2019-05-01", "2019-05-10")
+# postFire_period = ("2020-06-01", "2020-06-10")
 
-preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
-print(display_map(preprocessing_params))
-# print(burnSeverity(preprocessing_params))
-# print(preprocessing_params)
+# preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+# print(display_map(preprocessing_params))
+# # print(burnSeverity(preprocessing_params))
+# # print(preprocessing_params)
 
 
 
