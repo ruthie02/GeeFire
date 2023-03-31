@@ -120,32 +120,59 @@ document.getElementById('calcviz').addEventListener('click', function () {
         }
       })
       .then(response => {
-        // Before Fire
-        bfire = new ol.layer.Tile({
+        // Before Fire True Color
+        bfire_tc = new ol.layer.Tile({
           source: new ol.source.XYZ({            
-            url: response["before_fire"]            
+            url: response["before_fire_tc"]            
           }),
-          title: "Before Fire"
+          title: "Before Fire True Color Image"
         });
-        // After Fire
-        afire = new ol.layer.Tile({
+        // After Fire True Color
+        afire_tc = new ol.layer.Tile({
           source: new ol.source.XYZ({            
             url: response["after_fire"]            
           }),
-          title: "After Fire",
+          title: "After Fire True Color Image",
         });
 
+        // Before Fire Cloud Masked
+        bfire_mos = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["before_fire_mos"]            
+          }), 
+          title: "Before Fire Cloud Masked Image"
+        });
+        // After Fire Cloud Masked
+        afire_mos = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["after_fire_mos"]            
+          }),
+          title: "After Fire Cloud Masked Image",
+        });
+
+        // dNBR gray
+        dNBR_gray = new ol.layer.Tile({
+          source: new ol.source.XYZ({            
+            url: response["dNBR_gray"]            
+          }),
+          title: "After Fire",
+        });
         // Fire Area
         final = new ol.layer.Tile({
           source: new ol.source.XYZ({            
             url: response["fire_area"]            
           }),
-          title: "Fire Area"
+          title: "Area Classification"
         });
         
         map.addLayer(final);
-        map.addLayer(afire);
-        map.addLayer(bfire);
+        map.addLayer(dNBR_gray);
+        map.addLayer(afire_tc);
+        map.addLayer(bfire_tc);
+        map.addLayer(bfire_mos);
+        map.addLayer(afire_mos);
+
+
         
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);

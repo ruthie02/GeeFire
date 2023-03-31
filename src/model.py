@@ -2,13 +2,12 @@ import ee
 
 ee.Initialize()
 
-grey = ['white', 'black']
 
 # initialize Earth Engine Visualization Parameters to display on the map
 geoviz = {
     'sentinel_tc': {'bands': ['B4', 'B3', 'B2'], 'max': 2000, 'gamma': 1.5}, 
     'landsat_tc': {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 4000, 'gamma': 1.5}, 
-    'grey': {'min': -1000, 'max': 1000, 'palette': grey}, 
+    'gray': {'min': -1000, 'max': 1000, 'palette': ['white', 'black']}, 
     'sld_interval': {
         'sld': """<RasterSymbolizer>
                     <ColorMap type="intervals" extended="false">
@@ -35,16 +34,25 @@ def display_map(pre_processing_params):
         ## ------- Sentinel-2 Viz Params ---------- ##
 
         # before fire True Color Mosaicked Image
-        before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["sentinel_tc"])
-        before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
+        before_fire_tc = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["sentinel_tc"])
+        before_fire_tc_id = ee.data.getMapId({"image": before_fire_tc})["tile_fetcher"].url_format
 
         # after fire True Color Mosaicked Image
-        after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["sentinel_tc"])
-        after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
+        after_fire_tc = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["sentinel_tc"])
+        after_fire_tc_id = ee.data.getMapId({"image": after_fire_tc})["tile_fetcher"].url_format
+
+        # before fire Cloud Masked Mosaicked Image
+        before_fire_mos = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], **geoviz["sentinel_tc"])
+        before_fire_mos_id = ee.data.getMapId({"image": before_fire_mos})["tile_fetcher"].url_format
+
+        # after fire Cloud Masked Mosaicked Image
+        after_fire_mos = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["sentinel_tc"])
+        after_fire_mos_id = ee.data.getMapId({"image": after_fire_mos})["tile_fetcher"].url_format
+
 
         # dNBR grey image
-        fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
-        fire_area_grey_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
+        fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["gray"])
+        fire_area_gray_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
 
         fire_area = ee.Image(pre_processing_params["dNBR"]).sldStyle(geoviz['sld_interval']['sld']).getMapId()['tile_fetcher'].url_format
 
@@ -52,16 +60,24 @@ def display_map(pre_processing_params):
         ## ------- Landsat-8 Viz Params ---------- ##
 
         # before fire True Color Mosaicked Image
-        before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["landsat_tc"])
-        before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
+        before_fire_tc = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["landsat_tc"])
+        before_fire_tc_id = ee.data.getMapId({"image": before_fire_tc})["tile_fetcher"].url_format
 
         # after fire True Color Mosaicked Image
-        after_fire = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["landsat_tc"])
-        after_fire_id = ee.data.getMapId({"image": after_fire})["tile_fetcher"].url_format
+        after_fire_tc = ee.Image.visualize(pre_processing_params["postfire_mosaic"], **geoviz["landsat_tc"])
+        after_fire_tc_id = ee.data.getMapId({"image": after_fire_tc})["tile_fetcher"].url_format
+
+        # before fire Cloud Masked Mosaicked Image
+        before_fire_mos = ee.Image.visualize(pre_processing_params["cloudmasked_prefire_mosaic"], **geoviz["landsat_tc"])
+        before_fire_mos_id = ee.data.getMapId({"image": before_fire_mos})["tile_fetcher"].url_format
+
+        # after fire Cloud Masked Mosaicked Image
+        after_fire_mos = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["landsat_tc"])
+        after_fire_mos_id = ee.data.getMapId({"image": after_fire_mos})["tile_fetcher"].url_format
 
         # dNBR grey image
-        fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
-        fire_area_grey_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
+        fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["gray"])
+        fire_area_gray_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
 
         # # dNBR sldStyled image
         # fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"](**geoviz["sld_intervals"]), {})
@@ -69,7 +85,9 @@ def display_map(pre_processing_params):
         fire_area = ee.Image(pre_processing_params["dNBR"]).sldStyle(geoviz['sld_interval']['sld']).getMapId()['tile_fetcher'].url_format
 
 
-    display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id, "fire_area": fire_area}
+    display_layer = {"before_fire_tc": before_fire_tc_id, "after_fire_tc": after_fire_tc_id, 
+                     "before_fire_mos": before_fire_mos_id, "after_fire_mos": after_fire_mos_id,
+                     "dNBR_gray": fire_area_gray_id, "fire_area": fire_area}
 
     return display_layer
 
