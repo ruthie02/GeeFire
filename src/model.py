@@ -49,11 +49,11 @@ def display_map(pre_processing_params):
         after_fire_mos = ee.Image.visualize(pre_processing_params["cloudmasked_postfire_mosaic"], **geoviz["sentinel_tc"])
         after_fire_mos_id = ee.data.getMapId({"image": after_fire_mos})["tile_fetcher"].url_format
 
-
         # dNBR grey image
         fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["gray"])
         fire_area_gray_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
 
+        # classified image
         fire_area = ee.Image(pre_processing_params["dNBR"]).sldStyle(geoviz['sld_interval']['sld']).getMapId()['tile_fetcher'].url_format
 
     else: 
@@ -79,9 +79,7 @@ def display_map(pre_processing_params):
         fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["gray"])
         fire_area_gray_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
 
-        # # dNBR sldStyled image
-        # fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"](**geoviz["sld_intervals"]), {})
-        # fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
+        # classified image
         fire_area = ee.Image(pre_processing_params["dNBR"]).sldStyle(geoviz['sld_interval']['sld']).getMapId()['tile_fetcher'].url_format
 
 
@@ -108,9 +106,6 @@ def maskS2sr(image):
     # Return the masked image, scaled to TOA reflectance, without the QA bands.
     return image.updateMask(mask).copyProperties(image, ["system:time_start"])
 
-
-
-
 ## ---------- cloud masking algorithm  for Landsat-8 image collection ---------- ##
 def maskL8sr(image):
   
@@ -127,8 +122,6 @@ def maskL8sr(image):
   
   # Return the masked image, scaled to TOA reflectance, without the QA bands.
   return image.updateMask(mask).select("B[0-9]*").copyProperties(image, ["system:time_start"])
-
-
 
 
 ## Pre-Processing algorithm using the User's preferences ---------- ##
