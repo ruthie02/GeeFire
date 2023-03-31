@@ -229,7 +229,7 @@ def burnSeverity(pre_processing_params):
         pixstats = allpix.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest,scale=10)
 
         # extract pixel count as a number
-        allpixels = ee.Number(pixstats.get('sum'))
+        allpixels = ee.Number(pixstats.get('sum')).getInfo()
 
         # define function for calculating area statistics for a single class
         def areacount(cnr, name):
@@ -239,17 +239,10 @@ def burnSeverity(pre_processing_params):
             stats = singleMask.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest, scale=10)
             # calculate number of pixels, hectares, and percentage of total area
             pix = ee.Number(stats.get('sum'))
-            hect = pix.multiply(100).divide(10000) # Sentinel pixel = 10m x 10m --> 100 sqm
-            perc = pix.divide(allpixels).multiply(10000).round().divide(100) # get area percent by class and round to 2 decimals
+            hect = pix.multiply(100).divide(10000).getInfo() # Sentinel pixel = 10m x 10m --> 100 sqm
+            perc = pix.divide(allpixels).multiply(10000).round().divide(100).getInfo() # get area percent by class and round to 2 decimals
             # add results to list of area statistics for all classes
-            arealist.append({'Class': name, 'Pixels': pix, 'Hectares': hect, 'Percentage': perc})
-
-            # severity classes in different order
-            names2 = ['NA', 'High Severity', 'Moderate-high Severity', 'Moderate-low Severity', 'Low Severity', 'Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High']
-
-            # execute function for each class
-            for i in range(8):
-                print(areacount(i, names2[i]))
+            return{'Class': name, 'Pixels': pix, 'Hectares': hect, 'Percentage': perc}
 
 
     else:
@@ -258,7 +251,7 @@ def burnSeverity(pre_processing_params):
         pixstats = allpix.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest,scale=30)
 
         # extract pixel count as a number
-        allpixels = ee.Number(pixstats.get('sum'))
+        allpixels = ee.Number(pixstats.get('sum')).getInfo()
 
         # define function for calculating area statistics for a single class
         def areacount(cnr, name):
@@ -268,17 +261,20 @@ def burnSeverity(pre_processing_params):
             stats = singleMask.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest, scale=30)
             # calculate number of pixels, hectares, and percentage of total area
             pix = ee.Number(stats.get('sum'))
-            hect = pix.multiply(900).divide(10000) # Landsat-8 pixel = 30m x 30m --> 900 sqm
-            perc = pix.divide(allpixels).multiply(10000).round().divide(100) # get area percent by class and round to 2 decimals
-            # add results to list of area statistics for all classes
-            arealist.append({'Class': name, 'Pixels': pix, 'Hectares': hect, 'Percentage': perc})
+            hect = pix.multiply(900).divide(10000).getInfo() # Landsat-8 pixel = 30m x 30m --> 900 sqm
+            perc = pix.divide(allpixels).multiply(10000).round().divide(100).getInfo() # get area percent by class and round to 2 decimals
+            return{'Class': name, 'Pixels': pix.getInfo(), 'Hectares': hect, 'Percentage': perc}
+        
+    
+    # severity classes in different order
+    names2 = ['NA', 'High Severity', 'Moderate-high Severity',
+            'Moderate-low Severity', 'Low Severity','Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High']
 
-            # severity classes in different order
-            names2 = ['NA', 'High Severity', 'Moderate-high Severity', 'Moderate-low Severity', 'Low Severity', 'Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High']
+    # execute function for each class and append result to the list
+    for i in range(8):
+        arealist.append(areacount(i, names2[i]))
 
-            # execute function for each class
-            for i in range(8):
-                print(areacount(i, names2[i]))
+    return arealist
             
 
 
