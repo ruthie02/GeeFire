@@ -2,19 +2,6 @@ import ee
 
 ee.Initialize()
 
-sld_interval = '<RasterSymbolizer>' \
-    '<ColorMap type="intervals" extended="false" >' + \
-      '<ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>' + \
-      '<ColorMapEntry color="#7a8737" quantity="-250" label="-250" />' + \
-      '<ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />' + \
-      '<ColorMapEntry color="#0ae042" quantity="100" label="100" />' + \
-      '<ColorMapEntry color="#fff70b" quantity="270" label="270" />' + \
-      '<ColorMapEntry color="#ffaf38" quantity="440" label="440" />' + \
-      '<ColorMapEntry color="#ff641b" quantity="660" label="660" />' + \
-      '<ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />' + \
-    '</ColorMap>' + \
-  '</RasterSymbolizer>'
-
 grey = ['white', 'black']
 
 # initialize Earth Engine Visualization Parameters to display on the map
@@ -22,8 +9,23 @@ geoviz = {
     'sentinel_tc': {'bands': ['B4', 'B3', 'B2'], 'max': 2000, 'gamma': 1.5}, 
     'landsat_tc': {'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 4000, 'gamma': 1.5}, 
     'grey': {'min': -1000, 'max': 1000, 'palette': grey}, 
-    'sld_interval': sld_interval
+    'sld_interval': {
+        'sld': """<RasterSymbolizer>
+                    <ColorMap type="intervals" extended="false">
+                    <ColorMapEntry color="#ffffff" quantity="-500" label="-500"/>
+                    <ColorMapEntry color="#7a8737" quantity="-250" label="-250" />
+                    <ColorMapEntry color="#acbe4d" quantity="-100" label="-100" />
+                    <ColorMapEntry color="#0ae042" quantity="100" label="100" />
+                    <ColorMapEntry color="#fff70b" quantity="270" label="270" />
+                    <ColorMapEntry color="#ffaf38" quantity="440" label="440" />
+                    <ColorMapEntry color="#ff641b" quantity="660" label="660" />
+                    <ColorMapEntry color="#a41fd6" quantity="2000" label="2000" />
+                    </ColorMap>
+                </RasterSymbolizer>"""
+            }
 }
+
+
 
 ## -----------------Display Map Function ----------------## 
 
@@ -33,7 +35,7 @@ def display_map(pre_processing_params):
         ## ------- Sentinel-2 Viz Params ---------- ##
 
         # before fire True Color Mosaicked Image
-        before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], *geoviz["sentinel_tc"])
+        before_fire = ee.Image.visualize(pre_processing_params["prefire_mosaic"], **geoviz["sentinel_tc"])
         before_fire_id = ee.data.getMapId({"image": before_fire})["tile_fetcher"].url_format
 
         # after fire True Color Mosaicked Image
@@ -44,12 +46,7 @@ def display_map(pre_processing_params):
         fire_area_grey = ee.Image.visualize(pre_processing_params["dNBR"], **geoviz["grey"])
         fire_area_grey_id = ee.data.getMapId({"image": fire_area_grey})["tile_fetcher"].url_format
 
-        # # dNBR sldStyled image
-        # fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"](**geoviz["sld_intervals"]), {})
-        # fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
-
-        dNBR = pre_processing_params["dNBR"]
-        fire_area = dNBR.sldStyle(**geoviz["sld_interval"])
+        fire_area = ee.Image(pre_processing_params["dNBR"]).sldStyle(geoviz['sld_interval']['sld']).getMapId()['tile_fetcher'].url_format
 
     else: 
         ## ------- Landsat-8 Viz Params ---------- ##
@@ -69,15 +66,12 @@ def display_map(pre_processing_params):
         # # dNBR sldStyled image
         # fire_area = ee.Image.sldStyle(pre_processing_params["dNBR"](**geoviz["sld_intervals"]), {})
         # fire_area_id = ee.data.getMapId({"image": fire_area})["tile_fetcher"].url_format
+        fire_area = ee.Image(pre_processing_params["dNBR"]).sldStyle(geoviz['sld_interval']['sld']).getMapId()['tile_fetcher'].url_format
 
-        
-        dNBR = pre_processing_params["dNBR"]
-        fire_area = dNBR.sldStyle(**geoviz["sld_interval"])
 
     display_layer = {"before_fire": before_fire_id, "after_fire": after_fire_id, "fire_area": fire_area}
 
     return display_layer
-
 
 
 ## ---------- cloud masking algorithm  for Sentinel-2 image collection ---------- ##
@@ -208,6 +202,7 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
         dNBR_unscaled = preNBR.subtract(postNBR)
         # Scale product to USGS standards
         dNBR = dNBR_unscaled.multiply(1000)
+        print(dNBR.bandNames().getInfo())
 
         # Seperate result into 8 burn severity classes --> to be used for Statistics computation
         thresholds = ee.Image([-1000, -251, -101, 99, 269, 439, 659, 2000])
@@ -277,12 +272,6 @@ def burnSeverity(pre_processing_params):
     return arealist
             
 
-
-
-
-
-
-
 # xMin = -122.09
 # yMin = 37.42
 # xMax = -122.08
@@ -309,8 +298,9 @@ preFire_period = ("2019-05-01", "2019-05-10")
 postFire_period = ("2020-06-01", "2020-06-10")
 
 preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
-# print(display_map(preprocessing_params))
-print(burnSeverity(preprocessing_params))
+print(display_map(preprocessing_params))
+# print(burnSeverity(preprocessing_params))
+# print(preprocessing_params)
 
 
 
