@@ -155,7 +155,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
           source: new ol.source.XYZ({            
             url: response["dNBR_gray"]            
           }),
-          title: "After Fire",
+          title: "dNBR Gray Image",
         });
         // Fire Area
         final = new ol.layer.Tile({
