@@ -6,3 +6,5 @@ venv
 
 #earth engine token
 gee_key.json
+
+.vscode
