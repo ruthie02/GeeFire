@@ -213,8 +213,6 @@ def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
         thresholds = ee.Image([-1000, -251, -101, 99, 269, 439, 659, 2000])
         classified = dNBR.lt(thresholds).reduce('sum').toInt()
 
-
-
     return ({'prefire_mosaic': pre_mos, 'postfire_mosaic': post_mos, 'cloudmasked_prefire_mosaic': pre_cm_mos, 
              'cloudmasked_postfire_mosaic': post_cm_mos, 'dNBR': dNBR, 'area_of_interest': area_of_interest, 'satellite': satellite, 'classified': classified})
 
@@ -222,16 +220,66 @@ def burnSeverity(pre_processing_params):
     
     classified = pre_processing_params['classified']
     area_of_interest = pre_processing_params['area_of_interest']
+    satellite = pre_processing_params["satellite"]
+    arealist = []
 
-    # count number of pixels in entire layer by masking the entire layer and count pixels in a single class
-    allpix =  classified.updateMask(classified)
-    pixstats = allpix.reduceRegion({'reducer': ee.Reducer.count(), 'geometry': area_of_interest, 'scale': 30})
+    if satellite == "Sentinel-2":
+        # count number of pixels in entire layer by masking the entire layer and count pixels in a single class
+        allpix =  classified.updateMask(classified)
+        pixstats = allpix.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest,scale=10)
 
-    # extract pixel count as a number
-    allpixels = ee.Number(pixstats.get('sum'))
+        # extract pixel count as a number
+        allpixels = ee.Number(pixstats.get('sum'))
+
+        # define function for calculating area statistics for a single class
+        def areacount(cnr, name):
+            # mask a single class
+            singleMask = classified.updateMask(classified.eq(cnr))
+            # count pixels in a single class
+            stats = singleMask.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest, scale=10)
+            # calculate number of pixels, hectares, and percentage of total area
+            pix = ee.Number(stats.get('sum'))
+            hect = pix.multiply(100).divide(10000) # Sentinel pixel = 10m x 10m --> 100 sqm
+            perc = pix.divide(allpixels).multiply(10000).round().divide(100) # get area percent by class and round to 2 decimals
+            # add results to list of area statistics for all classes
+            arealist.append({'Class': name, 'Pixels': pix, 'Hectares': hect, 'Percentage': perc})
+
+            # severity classes in different order
+            names2 = ['NA', 'High Severity', 'Moderate-high Severity', 'Moderate-low Severity', 'Low Severity', 'Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High']
+
+            # execute function for each class
+            for i in range(8):
+                print(areacount(i, names2[i]))
 
 
+    else:
+        # count number of pixels in entire layer by masking the entire layer and count pixels in a single class
+        allpix =  classified.updateMask(classified)
+        pixstats = allpix.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest,scale=30)
 
+        # extract pixel count as a number
+        allpixels = ee.Number(pixstats.get('sum'))
+
+        # define function for calculating area statistics for a single class
+        def areacount(cnr, name):
+            # mask a single class
+            singleMask = classified.updateMask(classified.eq(cnr))
+            # count pixels in a single class
+            stats = singleMask.reduceRegion(reducer=ee.Reducer.count(), geometry=area_of_interest, scale=30)
+            # calculate number of pixels, hectares, and percentage of total area
+            pix = ee.Number(stats.get('sum'))
+            hect = pix.multiply(900).divide(10000) # Landsat-8 pixel = 30m x 30m --> 900 sqm
+            perc = pix.divide(allpixels).multiply(10000).round().divide(100) # get area percent by class and round to 2 decimals
+            # add results to list of area statistics for all classes
+            arealist.append({'Class': name, 'Pixels': pix, 'Hectares': hect, 'Percentage': perc})
+
+            # severity classes in different order
+            names2 = ['NA', 'High Severity', 'Moderate-high Severity', 'Moderate-low Severity', 'Low Severity', 'Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High']
+
+            # execute function for each class
+            for i in range(8):
+                print(areacount(i, names2[i]))
+            
 
 
 
@@ -253,19 +301,20 @@ def burnSeverity(pre_processing_params):
 # # preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
 # # print(display_map(preprocessing_params))
 
-# xMin = -122.09
-# yMin = 37.42
-# xMax = -122.08
-# yMax = 37.43
+xMin = -122.09
+yMin = 37.42
+xMax = -122.08
+yMax = 37.43
 
-# ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
+ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
 
-# satellite = "Landsat-8"
-# preFire_period = ("2019-05-01", "2019-05-10")
-# postFire_period = ("2020-06-01", "2020-06-10")
+satellite = "Landsat-8"
+preFire_period = ("2019-05-01", "2019-05-10")
+postFire_period = ("2020-06-01", "2020-06-10")
 
-# preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
+preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
 # print(display_map(preprocessing_params))
+print(burnSeverity(preprocessing_params))
 
 
 
