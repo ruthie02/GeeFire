@@ -61,7 +61,7 @@ var addInteraction = () => {
 // Event handling to remove all the layers on the map without refreshing the page
 document.getElementById('reset').addEventListener('click', function () {
     map.getLayers().getArray().forEach(layer => {
-        if (layer.values_.title == "Fire Area" | layer.values_.title == "After Fire" | layer.values_.title == "Before Fire"){
+        if (layer.values_.title == "Before Fire True Color Image" | layer.values_.title == "After Fire True Color Image" | layer.values_.title == "Before Fire Cloud Masked Image" | layer.values_.title == "After Fire Cloud Masked Image" | layer.values_.title == "dNBR Gray Image" | layer.values_.title == "Area Classification"){
             map.removeLayer(layer)
         }
       });
@@ -71,6 +71,58 @@ document.getElementById('reset').addEventListener('click', function () {
       var lastFeature = features[features.length - 1];    
       source.removeFeature(lastFeature);
 
+});
+
+document.getElementById('download').addEventListener('click', function () {
+  document.getElementById('download').value = '...'
+
+      // Access element for pre-fire range dates
+      var pre_start = document.getElementById('pre_start').value;
+      var pre_last = document.getElementById('pre_last').value;
+  
+      // Access element for post range dates
+      var fire_start = document.getElementById('fire_start').value;
+      var fire_last = document.getElementById('fire_last').value;
+  
+      // Access what satellite collection to use
+      var satellite = document.getElementById('SatImage').value;
+  
+      // Obtain AOI
+      var features = source.getFeatures();
+      var lastFeature = features[features.length - 1].clone();
+      var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
+  
+
+  const request = new Request(
+    origin.concat(":").concat(port).concat('/download'),
+      {
+          method: 'POST',
+          body: JSON.stringify(
+              {
+                  bbox: bbox,
+                  pre_start: pre_start,
+                  pre_last: pre_last,
+                  fire_start: fire_start,
+                  fire_last: fire_last,
+                  satellite: satellite
+              }
+          )
+      }
+  );
+  fetch(request)
+  .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error('Something went wrong on api server!');
+      }
+    })
+    .then(response => {
+      document.location.href = origin.concat(":").concat(port).concat("/").concat(response);
+      document.getElementById('download').value = 'download'
+    }).catch(error => {
+      console.error(error);
+    });      
 });
 
 document.getElementById('calcviz').addEventListener('click', function () {
@@ -94,7 +146,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
     
 
     const request = new Request(
-      'http://127.0.0.1:5000/visualize',
+      origin.concat(":").concat(port).concat('/visualize'),
         {
             method: 'POST',
             body: JSON.stringify(
