@@ -169,7 +169,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
         } else {
           throw new Error('Something went wrong on api server!');
         }
-      })
+      })  // for the visualization
       .then(response => {
         // Before Fire True Color
         bfire_tc = new ol.layer.Tile({
@@ -215,7 +215,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
           }),
           title: "Area Classification"
         });
-        
+      
         map.addLayer(final);
         map.addLayer(dNBR_gray);
         map.addLayer(afire_tc);
@@ -223,8 +223,46 @@ document.getElementById('calcviz').addEventListener('click', function () {
         map.addLayer(bfire_mos);
         map.addLayer(afire_mos);
 
+        // add the Legend
 
-        
+        var names = ['NA', 'High Severity', 'Moderate-high Severity', 'Moderate-low Severity', 'Low Severity', 'Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High'];
+        var colors = ['#ffffff', '#7a8737', '#acbe4d', '#0ae042', '#fff70b', '#ffaf38', '#ff641b', '#a41fd6'];
+
+        // Define the legend HTML and CSS styles
+        var legendHtml = '<div class="legend"><ul>';
+        for (var i = 0; i < names.length; i++) {
+          legendHtml += '<li><span class="square" style="background-color:' + colors[i] + '"></span><span class="name">' + names[i] + '</span></li>';
+        }
+        legendHtml += '</ul></div>';
+        var legendStyle = '.legend { background-color: rgba(255, 255, 255, 0.7); border-radius: 5px; bottom: 10px; right: 10px; padding: 10px; position: absolute; z-index: 100; }' +
+                          '.legend ul { list-style-type: none; margin: 0; padding: 0; }' +
+                          '.legend li { display: flex; align-items: center; line-height: 30px; }' +
+                          '.legend .square { display: inline-block; width: 20px; height: 20px; margin-right: 5px; border: 1px solid #000; }' +
+                          '.legend .name { vertical-align: middle; margin: 0; }';
+
+        // Create the legend control
+        var legendControl = new ol.control.Control({
+          element: document.createElement('div'),
+        });
+        legendControl.element.className = 'ol-legend ol-unselectable';
+        legendControl.element.innerHTML = legendHtml;
+        var style = document.createElement('style');
+        style.innerHTML = legendStyle;
+        document.getElementsByTagName('head')[0].appendChild(style);
+
+        // Add the legend control to the map
+        map.addControl(legendControl);
+
+        // Show/hide the legend based on the visibility of the "MyLayer" layer
+        var myLayer = map.getLayers().getArray().find(layer => layer.get('title') === 'Area Classification');
+        myLayer.on('change:visible', function() {
+          if (myLayer.getVisible()) {
+            legendControl.element.style.display = 'block';
+          } else {
+            legendControl.element.style.display = 'none';
+          }
+        });
+
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
         document.getElementById('calcviz').value = 'Calculate and Visualize'
@@ -234,5 +272,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
       });
 });
 
-
 addInteraction();
+
+
+

@@ -4,7 +4,7 @@ from flask_cors import CORS
 from src.ee_utils import *
 from flask import render_template
 import ee
-from src.model import preprocessing, display_map
+from src.model import preprocessing, display_map, burnSeverity
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ app = Flask(__name__)
 def before():
     ee.Initialize()
     CORS(app)
+    
 
 app = Flask(__name__)
 
@@ -44,7 +45,6 @@ def visualize():
     # run the burn severity model 
     pre_processing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
     tile_id = display_map(pre_processing_params)
-
     return tile_id
 
 @app.route('/download', methods=['POST'])
