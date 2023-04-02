@@ -9,7 +9,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <link rel="stylesheet" href="https://unpkg.com/ol-layerswitcher@3.8.3/dist/ol-layerswitcher.css" />
-    <link rel="stylesheet" href="../static/css/ol-6.css" type="text/css">
+    <link rel="stylesheet" href="../static/css/ol.css" type="text/css">
     <link rel="stylesheet" href="../static/css/ol3-sidebar.css" />
     <link rel="stylesheet" href="../static/css/ol-ext.css" type="text/css">
 
@@ -75,17 +75,22 @@
                 <input type="radio" id="SatImage" name="SatImage" value="Landsat-8">
                 <label for="Landsat">Landsat</label><br><br> 
 
-                <b> 4. Calculate and Visualize</b> <br><br>
-                <input class="button is-primary" type="submit" value='Calculate and Visualize' id="calcviz">   
+                <b> 4. Visualize Map</b> <br><br>
+                <input class="button is-primary" type="submit" value='Visualize Map' id="calcviz">   
                 
                 <br><br>
 
-                <b> 5. Download Map and Statistics</b> <br><br>
+                <b> 5. Show Statistics</b> <br><br>
+                <input class="button is-primary" type="submit" value='Show Statistics' id="stats">   
+                
+                <br><br>
+
+                <b> 6. Download Map and Statistics</b> <br><br>
                 <input class="button is-primary" type="submit" value='Download' id="download">   
                 
                 <br><br>
                 
-                <b> 6. Restart</b> <br><br>
+                <b> 7. Restart</b> <br><br>
                 <input class="button is-primary" type="submit" value='Reset' id="reset">     
             </div>
             <br>                       
@@ -95,7 +100,7 @@
 
     <div id="map" class="sidebar-map"></div>
 
-    <script src="../static/js/ol-6.js"></script> 
+    <script src="../static/js/ol.js"></script> 
     <script src="../static/js/ol3-sidebar.js"></script>
     <script src="../static/js/ol-ext.js"></script> 
     <script src="../static/js/main.js"></script>

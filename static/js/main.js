@@ -60,16 +60,16 @@ var addInteraction = () => {
 
 // Event handling to remove all the layers on the map without refreshing the page
 document.getElementById('reset').addEventListener('click', function () {
-    map.getLayers().getArray().forEach(layer => {
-        if (layer.values_.title == "Before Fire True Color Image" | layer.values_.title == "After Fire True Color Image" | layer.values_.title == "Before Fire Cloud Masked Image" | layer.values_.title == "After Fire Cloud Masked Image" | layer.values_.title == "dNBR Gray Image" | layer.values_.title == "Area Classification"){
-            map.removeLayer(layer)
-        }
-      });
-      
-      // delete the drawn polygon from the map
-      var features = source.getFeatures();
-      var lastFeature = features[features.length - 1];    
-      source.removeFeature(lastFeature);
+  map.getLayers().getArray().forEach(layer => {
+      if (layer.values_.title == "Before Fire True Color Image" | layer.values_.title == "After Fire True Color Image" | layer.values_.title == "Before Fire Cloud Masked Image" | layer.values_.title == "After Fire Cloud Masked Image" | layer.values_.title == "dNBR Gray Image" | layer.values_.title == "Area Classification"){
+          map.removeLayer(layer)
+      }
+    });
+    
+    // delete the drawn polygon from the map
+    var features = source.getFeatures();
+    var lastFeature = features[features.length - 1];    
+    source.removeFeature(lastFeature);
 
 });
 
@@ -265,7 +265,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
 
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
-        document.getElementById('calcviz').value = 'Calculate and Visualize'
+        document.getElementById('calcviz').value = 'Visualize Map'
 
       }).catch(error => {
         console.error(error);
