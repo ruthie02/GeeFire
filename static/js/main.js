@@ -225,7 +225,7 @@ document.getElementById('calcviz').addEventListener('click', function () {
 
         // add the Legend
 
-        var names = ['NA', 'High Severity', 'Moderate-high Severity', 'Moderate-low Severity', 'Low Severity', 'Unburned', 'Enhanced Regrowth, Low', 'Enhanced Regrowth, High'];
+        var names = ['NA', 'Enhanced Regrowth, High', 'Enhanced Regrowth, Low', 'Unburned', 'Low Severity', 'Moderate-low Severity', 'Moderate-high Severity', 'High Severity']        
         var colors = ['#ffffff', '#7a8737', '#acbe4d', '#0ae042', '#fff70b', '#ffaf38', '#ff641b', '#a41fd6'];
 
         // Define the legend HTML and CSS styles
