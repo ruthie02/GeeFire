@@ -272,6 +272,60 @@ document.getElementById('calcviz').addEventListener('click', function () {
       });
 });
 
+document.getElementById('stats').addEventListener('click', function () {
+  document.getElementById('stats').value = '...'
+
+      // Access element for pre-fire range dates
+      var pre_start = document.getElementById('pre_start').value;
+      var pre_last = document.getElementById('pre_last').value;
+  
+      // Access element for post range dates
+      var fire_start = document.getElementById('fire_start').value;
+      var fire_last = document.getElementById('fire_last').value;
+  
+      // Access what satellite collection to use
+      var satellite = document.getElementById('SatImage').value;
+  
+      // Obtain AOI
+      var features = source.getFeatures();
+      var lastFeature = features[features.length - 1].clone();
+      var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
+  
+
+  const request = new Request(
+    origin.concat(":").concat(port).concat('/statistics'),
+      {
+          method: 'POST',
+          body: JSON.stringify(
+              {
+                  bbox: bbox,
+                  pre_start: pre_start,
+                  pre_last: pre_last,
+                  fire_start: fire_start,
+                  fire_last: fire_last,
+                  satellite: satellite
+              }
+          )
+      }
+  );
+
+  fetch(request)
+  .then(response => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error('Something went wrong on api server!');
+      }
+    }) 
+    .then(response => {
+
+      console.log(response)
+
+    }).catch(error => {
+      console.error(error);
+    });
+});
+
 addInteraction();
 
 

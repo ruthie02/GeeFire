@@ -248,7 +248,7 @@ def burnSeverity(pre_processing_params):
             hect = pix.multiply(100).divide(10000).getInfo() # Sentinel pixel = 10m x 10m --> 100 sqm
             perc = pix.divide(allpixels).multiply(10000).round().divide(100).getInfo() # get area percent by class and round to 2 decimals
             # add results to list of area statistics for all classes
-            return{'Class': name, 'Pixels': pix, 'Hectares': hect, 'Percentage': perc}
+            return{'Class': name, 'Pixels': pix.getInfo(), 'Hectares': hect, 'Percentage': perc}
 
 
     else:
