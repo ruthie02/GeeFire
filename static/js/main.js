@@ -292,38 +292,83 @@ document.getElementById('stats').addEventListener('click', function () {
       var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
   
 
-  const request = new Request(
-    origin.concat(":").concat(port).concat('/statistics'),
-      {
-          method: 'POST',
-          body: JSON.stringify(
-              {
-                  bbox: bbox,
-                  pre_start: pre_start,
-                  pre_last: pre_last,
-                  fire_start: fire_start,
-                  fire_last: fire_last,
-                  satellite: satellite
+      const request = new Request(
+        origin.concat(":").concat(port).concat('/statistics'),
+        {
+            method: 'POST',
+            body: JSON.stringify(
+                {
+                    bbox: bbox,
+                    pre_start: pre_start,
+                    pre_last: pre_last,
+                    fire_start: fire_start,
+                    fire_last: fire_last,
+                    satellite: satellite
+                }
+            )
+        }
+    );
+    
+    fetch(request)
+        .then(response => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                throw new Error('Something went wrong on api server!');
+            }
+        })
+        .then(response => {
+            console.log(response);
+
+          // EXTRACT VALUE FOR HTML HEADER
+            var col = [];
+            for (var i = 0; i < response.length; i++){
+              for (var key in response[i]) {
+                if (col.indexOf(key) === -1) {
+                  col.push(key)
+                }
               }
-          )
-      }
-  );
+            };
 
-  fetch(request)
-  .then(response => {
-      if (response.status === 200) {
-        return response.json();
-      } else {
-        throw new Error('Something went wrong on api server!');
-      }
-    }) 
-    .then(response => {
+          // CREATE DYNAMIC TABLE
+            var table = document.createElement("table")
 
-      console.log(response)
+          // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE
 
-    }).catch(error => {
-      console.error(error);
-    });
+            var tr = table.insertRow(-1);     // table row
+
+            for (var i = 0; i < col.length; i++) {
+              var th = document.createElement("th");     // table header
+              th.innerHTML = col[i];
+              tr.appendChild(th);
+            }
+
+            // Add JSON data to the table as rows
+
+            for (var i = 0; i < response.length; i ++) {
+              tr = table.insertRow(-1);
+
+              for (var j = 0; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = response[i][col[j]];
+              }
+            };
+
+           // add the newly created table with json data to a container
+
+            var divContainer = document.getElementById("stats_table");
+            divContainer.innerHTML = "";
+            divContainer.appendChild(table);
+            table.setAttribute("border", "1");
+            table.style.backgroundColor = "rgba(255,255,255,0.8)";
+
+
+            document.getElementById('stats').value = 'Show Statistics'
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    
 });
 
 addInteraction();
