@@ -26,11 +26,14 @@ var raster = new ol.layer.Tile({
 //   })
 // });
 
+// remove the default print button
+var controls = ol.control.defaults({print: false});
 // Create Map
 var CreateMap = (layers) => {
     var map = new ol.Map({
         target: 'map',
         layers: layers,
+        controls: controls,
         view: new ol.View({
             center: ol.proj.transform([0,20], 'EPSG:4326', 'EPSG:3857'),
             zoom: 2
@@ -45,6 +48,14 @@ var map = CreateMap(layers=[raster, vector]);
 // Add sidebar
 var sidebar = new ol.control.Sidebar({ element: 'sidebar', position: 'left' });
 map.addControl(sidebar);
+map.addControl(new ol.control.CanvasScaleLine());
+map.addControl(new ol.control.CanvasAttribution({ canvas: true }));
+// Add a title control
+map.addControl(new ol.control.CanvasTitle({ 
+  title: 'my title', 
+  visible: false,
+  style: new ol.style.Style({ text: new ol.style.Text({ font: '20px "Lucida Grande",Verdana,Geneva,Lucida,Arial,Helvetica,sans-serif'}) })
+}));
 
 // draw POI 
 var draw; // global so we can remove it later
@@ -73,57 +84,43 @@ document.getElementById('reset').addEventListener('click', function () {
 
 });
 
-document.getElementById('download').addEventListener('click', function () {
-  document.getElementById('download').value = '...'
+// Create a print control
+var printControl = new ol.control.PrintDialog();
+printControl.setSize('A4');
 
-      // Access element for pre-fire range dates
-      var pre_start = document.getElementById('pre_start').value;
-      var pre_last = document.getElementById('pre_last').value;
-  
-      // Access element for post range dates
-      var fire_start = document.getElementById('fire_start').value;
-      var fire_last = document.getElementById('fire_last').value;
-  
-      // Access what satellite collection to use
-      var satellite = document.getElementById('SatImage').value;
-  
-      // Obtain AOI
-      var features = source.getFeatures();
-      var lastFeature = features[features.length - 1].clone();
-      var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
-  
-
-  const request = new Request(
-    origin.concat(":").concat(port).concat('/download'),
-      {
-          method: 'POST',
-          body: JSON.stringify(
-              {
-                  bbox: bbox,
-                  pre_start: pre_start,
-                  pre_last: pre_last,
-                  fire_start: fire_start,
-                  fire_last: fire_last,
-                  satellite: satellite
-              }
-          )
-      }
-  );
-  fetch(request)
-  .then(response => {
-      if (response.status === 200) {
-        return response.json();
-      } else {
-        throw new Error('Something went wrong on api server!');
-      }
-    })
-    .then(response => {
-      document.location.href = origin.concat(":").concat(port).concat("/").concat(response);
-      document.getElementById('download').value = 'download'
-    }).catch(error => {
-      console.error(error);
-    });      
+// Listen for the print event and save the map as a PDF or image file
+printControl.on(['print', 'error'], function(e) {
+    // Print success
+    if (e.image) {
+        if (e.pdf) {
+            // Export pdf using the print info
+            var pdf = new jsPDF({
+                orientation: e.print.orientation,
+                unit: e.print.unit,
+                format: e.print.size
+            });
+            pdf.addImage(e.image, 'JPEG', e.print.position[0], e.print.position[0], e.print.imageWidth, e.print.imageHeight);
+            pdf.save(e.print.legend ? 'legend.pdf' : 'map.pdf');
+        } else {
+            // Save image as file
+            e.canvas.toBlob(function(blob) {
+                var name = (e.print.legend ? 'legend.' : 'map.')+e.imageType.replace('image/','');
+                saveAs(blob, name);
+            }, e.imageType, e.quality);
+        }
+    } else {
+        console.warn('No canvas to export');
+    }
 });
+
+// Add the print control to the map
+map.addControl(printControl);
+
+// Add event listener to the "download" button to trigger print dialog
+document.getElementById('download').addEventListener('click', function () {
+  printControl.print();
+});
+
 
 document.getElementById('calcviz').addEventListener('click', function () {
     document.getElementById('calcviz').value = '...'
@@ -372,6 +369,4 @@ document.getElementById('stats').addEventListener('click', function () {
 });
 
 addInteraction();
-
-
 
