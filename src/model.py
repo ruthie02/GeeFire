@@ -101,7 +101,9 @@ def maskS2sr(image):
     qa = image.select('QA60')
 
     # All flags should be set to zero, indicating clear conditions
-    mask = qa.bitwiseAnd(cloudBitMask).eq(0) and qa.bitwiseAnd(cirrusBitMask).eq(0)
+    mask = qa.bitwiseAnd(cloudBitMask).eq(0) \
+        .And(qa.bitwiseAnd(cirrusBitMask).eq(0))
+
 
     # Return the masked image, scaled to TOA reflectance, without the QA bands.
     return image.updateMask(mask).copyProperties(image, ["system:time_start"])
@@ -118,17 +120,23 @@ def maskL8sr(image):
   qa = image.select('pixel_qa')
   
   # All flags should be set to zero, indicating clear conditions.
-  mask = qa.bitwiseAnd(cloudShadowBitMask).eq(0) and (qa.bitwiseAnd(cloudsBitMask).eq(0)) and (qa.bitwiseAnd(snowBitMask).eq(0))
-  
+  mask = qa.bitwiseAnd(cloudShadowBitMask).eq(0)\
+        .And(qa.bitwiseAnd(cloudsBitMask).eq(0))\
+        .And(qa.bitwiseAnd(snowBitMask).eq(0))
+
+
   # Return the masked image, scaled to TOA reflectance, without the QA bands.
   return image.updateMask(mask).select("B[0-9]*").copyProperties(image, ["system:time_start"])
 
 
 ## Pre-Processing algorithm using the User's preferences ---------- ##
 def preprocessing(ee_geom, satellite, preFire_period, postFire_period):
+
+    print(ee_geom)
     
     # define the location of the geometry
     area_of_interest = ee.FeatureCollection(ee_geom)
+    
 
      ## ------- Sentinel-2 Preprocessing alogrithm with the precessing function ---------- ## 
     if satellite == "Sentinel-2": 
@@ -297,10 +305,10 @@ def burnSeverity(pre_processing_params):
 # # preprocessing_params = preprocessing(ee_geom, satellite, preFire_period, postFire_period)
 # # print(display_map(preprocessing_params))
 
-# xMin = -122.09
-# yMin = 37.42
-# xMax = -122.08
-# yMax = 37.43
+# xMin = 148.54391387689222
+# yMin = -35.594817819554905
+# xMax = 148.76556262917737
+# yMax = -35.347449202644874
 
 # ee_geom = ee.Geometry.Rectangle([xMin, yMin, xMax, yMax])
 

@@ -140,7 +140,8 @@ document.getElementById('calcviz').addEventListener('click', function () {
         var features = source.getFeatures();
         var lastFeature = features[features.length - 1].clone();
         var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
-    
+
+        console.log(bbox)
 
     const request = new Request(
       origin.concat(":").concat(port).concat('/visualize'),
