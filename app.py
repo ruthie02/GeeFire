@@ -1,8 +1,6 @@
 from flask import Flask
 from flask import request
 from flask_cors import CORS
-import json
-from src.ee_utils import *
 from flask import render_template
 import ee
 from src.model import preprocessing, display_map, burnSeverity

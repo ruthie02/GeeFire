@@ -6,3 +6,6 @@ venv
 
 #earth engine token
 gee_key.json
+
+#config file
+config.py
