@@ -134,13 +134,14 @@ document.getElementById('calcviz').addEventListener('click', function () {
         var fire_last = document.getElementById('fire_last').value;
     
         // Access what satellite collection to use
-        var satellite = document.getElementById('SatImage').value;
+        var satellite = document.querySelector('input[name="SatImage"]:checked').value;
     
         // Obtain AOI
         var features = source.getFeatures();
         var lastFeature = features[features.length - 1].clone();
         var bbox = lastFeature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getExtent().toString();
 
+        console.log(satellite)
         console.log(bbox)
 
     const request = new Request(
@@ -282,7 +283,7 @@ document.getElementById('stats').addEventListener('click', function () {
       var fire_last = document.getElementById('fire_last').value;
   
       // Access what satellite collection to use
-      var satellite = document.getElementById('SatImage').value;
+      var satellite = document.querySelector('input[name="SatImage"]:checked').value;
   
       // Obtain AOI
       var features = source.getFeatures();
