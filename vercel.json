@@ -21,12 +21,6 @@
         "handler": "app.app",
         "memory": 512
       }
-    },
-    "dependencies": {
-      "include": [
-        "requirements.txt",
-        "secrets.json"
-      ]
     }
   }
   
