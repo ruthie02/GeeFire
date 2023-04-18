@@ -24,7 +24,8 @@
     },
     "dependencies": {
       "include": [
-        "requirements.txt"
+        "requirements.txt",
+        "secrets.json"
       ]
     }
   }

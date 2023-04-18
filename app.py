@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import request
+from flask import request, json
 from flask_cors import CORS
 from flask import render_template
 import ee
@@ -17,8 +17,13 @@ def before():
 
 app = Flask(__name__)
 
+with open('gee_key.json') as f:
+    secrets = json.load(f)
+
 @app.get('/')
 def map():
+    gee_email = secrets['GEE_EMAIL']
+    gee_private_key = secrets['GEE_PRIVATE_KEY']
     return render_template("map.html")
 
 @app.route('/visualize', methods=['POST'])
