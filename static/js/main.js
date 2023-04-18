@@ -92,26 +92,35 @@ printControl.setSize('A4');
 printControl.on(['print', 'error'], function(e) {
     // Print success
     if (e.image) {
-        if (e.pdf) {
-            // Export pdf using the print info
-            var pdf = new jsPDF({
-                orientation: e.print.orientation,
-                unit: e.print.unit,
-                format: e.print.size
-            });
-            pdf.addImage(e.image, 'JPEG', e.print.position[0], e.print.position[0], e.print.imageWidth, e.print.imageHeight);
-            pdf.save(e.print.legend ? 'legend.pdf' : 'map.pdf');
-        } else {
-            // Save image as file
-            e.canvas.toBlob(function(blob) {
-                var name = (e.print.legend ? 'legend.' : 'map.')+e.imageType.replace('image/','');
-                saveAs(blob, name);
-            }, e.imageType, e.quality);
+      if (e.pdf) {
+          // Export pdf using the print info
+          var pdf = new jsPDF({
+              orientation: e.print.orientation,
+              unit: e.print.unit,
+              format: e.print.size
+          });
+  
+          // Add map image to pdf
+          pdf.addImage(e.image, 'JPEG', e.print.position[0], e.print.position[0], e.print.imageWidth, e.print.imageHeight);
+  
+          // Add legend image to pdf
+          if (e.print.legend) {
+              var legendImage = document.getElementById('legend').querySelector('img');
+              pdf.addImage(legendImage.src, 'JPEG', e.print.position[0], e.print.position[1] + e.print.imageHeight + 10, e.print.legendWidth, e.print.legendHeight);
+          }
+  
+          pdf.save(e.print.legend ? 'legend.pdf' : 'map.pdf');
+      } else {
+          // Save image as file
+          e.canvas.toBlob(function(blob) {
+              var name = (e.print.legend ? 'legend.' : 'map.')+e.imageType.replace('image/','');
+              saveAs(blob, name);
+          }, e.imageType, e.quality);
+      }
+  } else {
+      console.warn('No canvas to export');
         }
-    } else {
-        console.warn('No canvas to export');
-    }
-});
+    });
 
 // Add the print control to the map
 map.addControl(printControl);
@@ -120,6 +129,8 @@ map.addControl(printControl);
 document.getElementById('download').addEventListener('click', function () {
   printControl.print();
 });
+
+
 
 
 document.getElementById('calcviz').addEventListener('click', function () {
