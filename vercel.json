@@ -15,12 +15,6 @@
     "env": {
       "GEE_EMAIL": "@geefire-gee-email",
       "GEE_PRIVATE_KEY": "@geefire-gee-private-key"
-    },
-    "functions": {
-      "api": {
-        "handler": "app.app",
-        "memory": 512
-      }
     }
   }
   
