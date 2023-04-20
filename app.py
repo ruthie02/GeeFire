@@ -22,8 +22,8 @@ with open('gee_key.json') as f:
 
 @app.get('/')
 def map():
-    gee_email = secrets['GEE_EMAIL']
-    gee_private_key = secrets['GEE_PRIVATE_KEY']
+    gee_email = secrets['client_email']
+    gee_private_key = secrets['private_key']
     return render_template("map.html")
 
 @app.route('/visualize', methods=['POST'])
