@@ -1,5 +1,4 @@
 {
-    "version": 2,
     "builds": [
       {
         "src": "app.py",
@@ -13,8 +12,7 @@
       }
     ],
     "env": {
-      "GEE_EMAIL": "@geefire-gee-email",
-      "GEE_PRIVATE_KEY": "@geefire-gee-private-key"
+      "GOOGLE_APPLICATION_CREDENTIALS": "./gee_key.json"
     }
   }
   

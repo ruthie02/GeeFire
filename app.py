@@ -17,13 +17,8 @@ def before():
 
 app = Flask(__name__)
 
-with open('gee_key.json') as f:
-    secrets = json.load(f)
-
 @app.get('/')
 def map():
-    gee_email = secrets['client_email']
-    gee_private_key = secrets['private_key']
     return render_template("map.html")
 
 @app.route('/visualize', methods=['POST'])
