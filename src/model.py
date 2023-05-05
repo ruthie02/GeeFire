@@ -1,5 +1,5 @@
 import ee
-from config import credentials
+from src.config import credentials
 
 ee.Initialize(credentials)
 
