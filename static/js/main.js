@@ -1,5 +1,5 @@
-var origin = "http:///127.0.0.1"
-var port = "5000"
+// var origin = "http:///127.0.0.1"
+// var port = "5000"
 
 //vector layer
 var source = new ol.source.Vector({wrapX: false});
@@ -156,7 +156,8 @@ document.getElementById('calcviz').addEventListener('click', function () {
         console.log(bbox)
 
     const request = new Request(
-      origin.concat(":").concat(port).concat('/visualize'),
+      // origin.concat(":").concat(port).concat('/visualize'),
+      "/visualize",
         {
             method: 'POST',
             body: JSON.stringify(
@@ -303,7 +304,8 @@ document.getElementById('stats').addEventListener('click', function () {
   
 
       const request = new Request(
-        origin.concat(":").concat(port).concat('/statistics'),
+        // origin.concat(":").concat(port).concat('/statistics'),
+        '/statistics',
         {
             method: 'POST',
             body: JSON.stringify(
