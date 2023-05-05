@@ -1,10 +1,10 @@
 import os
 from flask import Flask
 from flask import request
-from flask_cors import CORS
 from flask import render_template
 import ee
 from src.model import preprocessing, display_map, burnSeverity
+from config import credentials
 
 app = Flask(__name__)
 
@@ -12,10 +12,8 @@ app = Flask(__name__)
 
 @app.before_request
 def before():
-    ee.Initialize()
-    CORS(app)
+    ee.Initialize(credentials)
     
-
 app = Flask(__name__)
 
 

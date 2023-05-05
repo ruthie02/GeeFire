@@ -1,6 +1,7 @@
 import ee
+from config import credentials
 
-ee.Initialize()
+ee.Initialize(credentials)
 
 
 # initialize Earth Engine Visualization Parameters to display on the map
