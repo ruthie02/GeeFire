@@ -1,6 +1,5 @@
 import os
 from flask import Flask
-from flask_caching import Cache
 from flask import request
 from flask import render_template
 import ee
