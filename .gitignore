@@ -7,11 +7,11 @@ venv
 #earth engine token
 gee_key.json
 
-# duplicate token
-gee_key_orig.json
+# # duplicate token
+# gee_key_orig.json
 
-# #config file
-# config.py
+# # #config file
+# # config.py
 
 # environment variable
 .env

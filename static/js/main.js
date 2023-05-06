@@ -317,10 +317,11 @@ document.getElementById('stats').addEventListener('click', function () {
                     fire_last: fire_last,
                     satellite: satellite
                 }
-            )
+            ),
+            timeout: 60000 // timeout in milliseconds
         }
     );
-    
+        
     fetch(request)
         .then(response => {
             if (response.status === 200) {
