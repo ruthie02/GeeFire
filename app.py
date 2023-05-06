@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_caching import Cache
 from flask import request
 from flask import render_template
 import ee
@@ -7,6 +8,7 @@ from src.model import preprocessing, display_map, burnSeverity
 from src.config import credentials
 
 app = Flask(__name__)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # CORS(app, support_credentials=True)
 
@@ -22,6 +24,7 @@ def map():
     return render_template("map.html")
 
 @app.route('/visualize', methods=['POST'])
+@cache.cached(timeout=600)
 def visualize(): 
     request_parameters = request.get_json(force=True)
     
@@ -48,6 +51,7 @@ def visualize():
 
 
 @app.route('/statistics', methods=['POST'])
+@cache.cached(timeout=600)
 def show_stats(): 
     request_parameters = request.get_json(force=True)
     
