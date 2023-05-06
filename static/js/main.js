@@ -318,7 +318,8 @@ document.getElementById('stats').addEventListener('click', function () {
                     satellite: satellite
                 }
             ),
-            timeout: 60000 // timeout in milliseconds
+            timeout: 60000, // timeout in milliseconds
+            cache: 'default'
         }
     );
         
