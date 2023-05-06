@@ -8,7 +8,6 @@ from src.model import preprocessing, display_map, burnSeverity
 from src.config import credentials
 
 app = Flask(__name__)
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # CORS(app, support_credentials=True)
 
@@ -24,7 +23,6 @@ def map():
     return render_template("map.html")
 
 @app.route('/visualize', methods=['POST'])
-@cache.cached(timeout=600)
 def visualize(): 
     request_parameters = request.get_json(force=True)
     
@@ -51,7 +49,6 @@ def visualize():
 
 
 @app.route('/statistics', methods=['POST'])
-@cache.cached(timeout=600)
 def show_stats(): 
     request_parameters = request.get_json(force=True)
     
@@ -84,5 +81,4 @@ def download():
 
 if __name__ == '__main__':
    port = int(os.environ.get('PORT', 5000))
-   app.config['TIMEOUT'] = 60
    app.run(debug=True, host='0.0.0.0', port=port)
