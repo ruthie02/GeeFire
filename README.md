@@ -1,5 +1,3 @@
-<h3> Note: Website still not working </h3>
-
 <h1>GeeFire: A Web Application for Forest Fire Severity Assessment using Google Earth Engine</h1>
 
 <p>Wildfire is an unintentional fire burning in a natural area, usually a forest, often caused by human activity or by natural phenomenon such as lightning. In the summer of 2019-20, Australia was hit by a severe bushfire, which led to an estimated death of 1.25 billion animals, up to 19 million hectares were burned, 12.6 million of which are forest and bushes, destroyed 3,094 homes, and killed 33 humans. <br><br>
